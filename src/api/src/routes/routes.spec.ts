@@ -1,9 +1,10 @@
 import request from "supertest";
 import { Server } from "http";
 import { Express } from "express";
-import { createApp } from "../app";
+// import { createApp } from "../app";
 import { TodoItem, TodoItemState } from "../models/todoItem";
 import { TodoList } from "../models/todoList";
+import { createApp } from "../app";
 
 describe("API", () => {
     let app: Express;

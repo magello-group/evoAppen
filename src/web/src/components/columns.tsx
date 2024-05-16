@@ -48,7 +48,6 @@ export const columns: ColumnDef<dateInterFace>[] = [
     accessorKey: "name",
     header: () => <div className="text-left">Namn</div>,
     cell: ({ row }) => {
-      console.log(row)
       return <Link to={`/round/view/${row.original.roundId}`}><span className="no-underline hover:underline">{row.getValue("name")}</span></Link>;
     },
   },

@@ -25,26 +25,6 @@ import { Button } from "./shadcnComponents/ui/button";
 const App: React.FC = () => {
 
 
-  // return (
-  //   <Router>
-  //     <Routes>
-  //       <Route path="/" element={
-  //         <>
-  //           <Button onClick={
-  //             async () => {
-  //               const response = await fetch(config.api.baseUrl + '/lists');
-  //               const getList = await response.json();
-  //               console.log(getList);
-  //             }}>HEJ</Button>
-  //           <Home />
-  //         </>
-  //       }
-  //       />
-  //     </Routes>
-  //   </Router>
-  // )
-  // }
-
   return (
 
     <div className="container mx-auto px-4 sm:px-6 md:px-0 lg:px-0 xl:px-0">
@@ -56,7 +36,15 @@ const App: React.FC = () => {
             } />
             <Route path="/" element={
               <ProtectedRouteWrapper>
-                <Home />
+                <>
+                  <Button onClick={
+                    async () => {
+                      const response = await fetch(config.api.baseUrl + '/lists');
+                      const getList = await response.json();
+                      console.log(getList);
+                    }}>HEJ</Button>
+                  <Home />
+                </>
               </ProtectedRouteWrapper>
             } />
             <Route path="/round/view/:name" element={<ProtectedRouteWrapper><ViewRound /> </ProtectedRouteWrapper>} />
