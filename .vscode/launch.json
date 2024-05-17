@@ -12,7 +12,7 @@
             "url": "http://localhost:5173",
             "sourceMapPathOverrides": {
                 "webpack:///src/*": "${webRoot}/*"
-            },
+            }
         },
         {
             "name": "Debug API",
@@ -36,6 +36,13 @@
             "preLaunchTask": "Restore API",
             "outputCapture": "std"
         },
+        {
+            "name": "Attach to Node Functions",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "preLaunchTask": "func: host start"
+        }
     ],
     "inputs": [
         {
