@@ -622,11 +622,13 @@ export const roundInsert = {
 interface TemplateData {
   id: string;
   name: string;
+  identification: string;
+  message: string;
 }
 
 export const templateData: TemplateData[] = [
-  {id: "1", name:"magello"},
-  {id: "2", name:"lön"},
-  {id: "3", name:"test"}
+  {id: "1", name:"magello", identification: "anonyma svar", message: "Dina svar kommer bli anonyma."},
+  {id: "2", name:"lön", identification: "namngivna svar", message: "Dina svar kommer bli publika."},
+  {id: "3", name:"test", identification: "valfritt", message: "Dina svar kommer bli publika."}
 ]
 

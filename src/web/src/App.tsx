@@ -14,12 +14,12 @@ import { EditRound } from "./pages/EditRound";
 import NewFeedbackRound from "./pages/NewFeedbackRound";
 import EditNewFeedbackRound from "./pages/EditNewFeedbackRound";
 import { InteractionStatus } from "@azure/msal-browser";
-// import Feedbackrounds from "./components/feedbackrounds";
 import Home from "./pages/Home";
 import config from "./config/config";
 
 import { ViewRound } from "./pages/ViewRound";
 import { Button } from "./shadcnComponents/ui/button";
+import NewTemplate from "./pages/NewTemplate";
 
 const App: React.FC = () => {
   return (
@@ -65,11 +65,20 @@ const App: React.FC = () => {
                 </ProtectedRouteWrapper>
               }
             />
+
             <Route
               path="/newfeedbackround/edit/:name"
               element={
                 <ProtectedRouteWrapper>
                   <EditNewFeedbackRound />{" "}
+                </ProtectedRouteWrapper>
+              }
+            />
+            <Route
+              path="/newtemplate"
+              element={
+                <ProtectedRouteWrapper>
+                  <NewTemplate />{" "}
                 </ProtectedRouteWrapper>
               }
             />
