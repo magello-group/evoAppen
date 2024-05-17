@@ -28,12 +28,16 @@ import { ScoreDescriptions, SettingsDropDown } from "@/misc/CommonRoundsComponen
 import { Label } from "@/shadcnComponents/ui/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { roundInsert } from '@/data/sampleData'
+import config from "@/config/config";
 
 
-const baseUrl = 'http://localhost:8080/api/v1/feedback/';
+
+
+// const response = await fetch(config.api.baseUrl + '/lists');
+// const getList = await response.json();
 
 const mutationFn = (newData: RoundInsertType): Promise<Response> => {
-    return fetch(baseUrl + 'rounds', {
+    return fetch(config.api.baseUrl + 'rounds', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -48,16 +52,14 @@ export const EditRound = () => {
 
     const { isPending, error, data } = useQuery({
         queryKey: ['repoData'],
-        queryFn: () =>
-            fetch(baseUrl + `rounds/edit/${name}`).then((res) =>
+        queryFn: () => {
+            return fetch(config.api.baseUrl + `/round/edit/${name}`).then((res) =>
                 res.json(),
-            ),
+            )
+        },
     })
 
     const mutation = useMutation({ mutationFn });
-
-
-
     const apiData = data
     const [chartData, setChartData] = useState<ChartData[]>([])
     const [accumulatedData, setAccumulatedData] = useState<ChartData[]>([])

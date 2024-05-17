@@ -30,6 +30,7 @@ import { Button } from "@/shadcnComponents/ui/button";
 import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { useMsal } from "@azure/msal-react";
 import { Header } from "@/components/Header";
+import config from "@/config/config";
 
 
 
@@ -42,11 +43,8 @@ const COLORS = [
 
 export const ViewRound = () => {
     const { name = "" } = useParams();
-    // const { apiData } = useApiFetch<RoundData>(`rounds/edit/${name}`, false)
-    const baseUrl = 'http://localhost:8080/api/v1/feedback/';
     const { instance, accounts } = useMsal();
-    // const { isPending, error, data } = useQuery({
-    const { data } = useQuery({
+    const { isPending, error, data } = useQuery({
         queryKey: ['repoData'],
         queryFn: async () => {
             const temp = await instance.acquireTokenSilent({
@@ -60,14 +58,13 @@ export const ViewRound = () => {
                 method: "GET",
                 headers: headers
             };
-            return fetch(baseUrl + `rounds/edit/${name}`, options).then((res) =>
+            return fetch(config.api.baseUrl + `/round/view/${name}`, options).then((res) =>
                 res.json(),
             )
-
-
-        }
+        },
     })
     const apiData = data
+    console.log(data)
     const [chartData, setChartData] = useState<ChartData[]>([])
     const [accumulatedData, setAccumulatedData] = useState<ChartData[]>([])
     const [dropDownSettings, setDropDownSettings] = useState<DropDownSettings>({ dataIsAcc: false, chartIsSticky: false, sideBySide: true })
