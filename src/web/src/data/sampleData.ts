@@ -5,7 +5,9 @@ export interface dateInterFace {
   created: Date;
   template: string;
   numberOfRespondents: number;
-  roundId: string;
+  _id: string;
+  editId: string;
+
 }
 
 export const sampleData: dateInterFace[] = [
@@ -14,28 +16,32 @@ export const sampleData: dateInterFace[] = [
     created: new Date("2024-01-16"),
     template: "magello",
     numberOfRespondents: 4,
-    roundId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    _id: "66460a2b4c82500bb88ac220",
+    editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
   },
   {
     name: "EventAppen Retro",
     created: new Date("2024-01-04"),
     template: "magello",
     numberOfRespondents: 1,
-    roundId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    _id: "66460a2b4c82500bb88ac220",
+    editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
   },
   {
     name: "Inför lönerev",
     created: new Date("2024-01-02"),
     template: "lön",
     numberOfRespondents: 3,
-    roundId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    _id: "66460a2b4c82500bb88ac220",
+    editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
   },
   {
     name: "Dags möhippa",
     created: new Date("2024-04-03"),
     template: "lön",
     numberOfRespondents: 2,
-    roundId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    _id: "66460a2b4c82500bb88ac220",
+    editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
   },
 ];
 

@@ -46,7 +46,7 @@ export const ViewRound = () => {
     const { instance, accounts } = useMsal();
     // const { isPending, error, data } = useQuery({
     const { data } = useQuery({
-        queryKey: ['repoData'],
+        queryKey: ['viewData'],
         queryFn: async () => {
             const temp = await instance.acquireTokenSilent({
                 scopes: ["User.Read"],

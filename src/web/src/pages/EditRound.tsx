@@ -51,7 +51,7 @@ export const EditRound = () => {
     // const { apiData } = useApiFetch<RoundData>(`rounds/edit/${name}`, false)
 
     const { isPending, error, data } = useQuery({
-        queryKey: ['repoData'],
+        queryKey: ['editData'],
         queryFn: () => {
             return fetch(config.api.baseUrl + `/round/edit/${name}`).then((res) =>
                 res.json(),
