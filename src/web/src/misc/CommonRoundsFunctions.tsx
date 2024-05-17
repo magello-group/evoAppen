@@ -49,12 +49,12 @@ export const transposeToChartDataforView = (answers: UserResponse[], categories:
                         text: question.text,
                         subject: category?.categoryName || "",
                     };
-                    newChartDataEntry[answer.userId] = ans.score; // Initialize user's score
-                    newChartDataEntry[answer.userId + "-motivation"] = ans.motivation
+                    newChartDataEntry[answer.userName] = ans.score; // Initialize user's score
+                    newChartDataEntry[answer.userName + "-motivation"] = ans.motivation
                     chartData.push(newChartDataEntry);
                 } else {
-                    existingData[answer.userId] = ans.score; // Update user's score
-                    existingData[answer.userId + "-motivation"] = ans.motivation
+                    existingData[answer.userName] = ans.score; // Update user's score
+                    existingData[answer.userName + "-motivation"] = ans.motivation
                 }
             }
         });

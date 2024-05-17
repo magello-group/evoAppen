@@ -128,15 +128,12 @@ export const EditRound = () => {
     return (
         <div id="wrapper" className="flex flex-col text-xs pb-4">
             <Header title={apiData?.name ?? ""} titleSize="l" description={"Du har blivit inbjuden att ge feedback. Dina svar är anonyma. Du svarar genom att betygsätta "} hideLogin={true} />
-            <Button onClick={() => {
-                mutation.mutate(roundInsert as RoundInsertType);
-            }}> Add Reound</Button>
             <div className="mb-4">
                 <div className="flex justify-between">
-                    <>
+                    <span>
                         <Label htmlFor="name" >Namn</Label>
                         <Input id="name" className="mt-1" placeholder="Namn" onChange={(e) => setUserName(e.target.value)} />
-                    </>
+                    </span>
                     <div className="flex items-end">
                         <SettingsDropDown allUsers={[]} selectedUsers={[]} setSelectedUsers={() => { }} dropDownSettings={dropDownSettings} setDropDownSettings={setDropDownSettings} isSmallDevice={isSmallDevice} />
                     </div>
@@ -175,7 +172,7 @@ export const EditRound = () => {
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={38}>
-                            <ScrollArea>
+                            <ScrollArea className="h-full">
                                 <ScoreDescriptions
                                     scoreDescriptions={apiData?.templateData?.scoreScale?.descriptions ?? []}
                                 />
@@ -255,7 +252,7 @@ const EditChart = ({ apiData, chartData, dataIsAcc = false, isSmallDevice = fals
                     }
                 />
                 <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => `${chartData[b].subject} ${!dataIsAcc ? (b + 1) : ''}`} />
-                <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData.scoreScale.end ?? 6]} />
+                <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData?.scoreScale.end ?? 6]} />
                 <Radar name={dataIsAcc ? "Medelvärde" : "Ditt svar"} dataKey={"user1"} stroke="#dbeafe" fill="url(#radarchartColorToRed)" fillOpacity={0.8} />
             </RadarChart>
         </ResponsiveContainer>)
