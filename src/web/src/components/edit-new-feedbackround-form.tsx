@@ -9,15 +9,18 @@ import {
   CardTitle,
 } from "@/shadcnComponents/ui/card";
 
-import { sampleDataCoworkers, templateData } from "@/data/sampleData";
+import {
+  sampleDataCoworkers,
+  templateData,
+  sampleData,
+} from "@/data/sampleData";
 
 import { Button } from "@/shadcnComponents/ui/button";
 import { useForm, Controller } from "react-hook-form";
-
 import { CalendarIcon, CaretSortIcon } from "@radix-ui/react-icons";
-
 import { ScrollArea } from "@/shadcnComponents/ui/scroll-area";
 import { ChangeEventHandler, useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 type FormValues = {
   name: string;
@@ -27,16 +30,20 @@ type FormValues = {
 };
 
 const NewFeedbackRoundForm = () => {
+  const { name: paramName = "" } = useParams();
   const [isOpen, setIsOpen] = useState<boolean>(false);
   const [coworkers, setSelectedOptions] = useState<string[]>([]);
 
   const {
+    setValue,
     register,
     handleSubmit,
     control,
-    setValue,
     formState: { errors },
   } = useForm<FormValues>();
+
+  const chosenRound = sampleData.filter((round) => round.name === paramName);
+  const { coworker, lastresponsedate, name, template } = chosenRound[0];
 
   const onSubmit = async (data: FormValues) => {
     try {
@@ -52,6 +59,7 @@ const NewFeedbackRoundForm = () => {
 
   const toggleOption: ChangeEventHandler<HTMLInputElement> = (e) => {
     const option = e.target.value;
+
     const index = coworkers.indexOf(option);
     if (index === -1) {
       setSelectedOptions([...coworkers, option]);
@@ -61,6 +69,13 @@ const NewFeedbackRoundForm = () => {
       setSelectedOptions(updatedOptions);
     }
   };
+
+  useEffect(() => {
+    setValue("name", name);
+    setValue("template", template);
+    setSelectedOptions(coworker);
+    setValue("lastDate", new Date(lastresponsedate));
+  }, [coworker, name, template, lastresponsedate, setValue]);
 
   useEffect(() => {
     setValue("coworkers", coworkers); // Update form value
@@ -99,7 +114,7 @@ const NewFeedbackRoundForm = () => {
               <Controller
                 name="template"
                 control={control}
-                defaultValue=""
+                defaultValue={""}
                 rules={{
                   validate: (value) => value.length > 0 || "Välj en mall!",
                 }}
@@ -242,7 +257,7 @@ const NewFeedbackRoundForm = () => {
           </div>
         </form>
       </CardContent>
-      <CardFooter className="flex justify-end">
+      <CardFooter className="fleax justify-end">
         <Button
           variant="link"
           asChild
@@ -251,7 +266,7 @@ const NewFeedbackRoundForm = () => {
           <a href="/">Avbryt</a>
         </Button>
         <Button type="submit" form="nyfeedbackform">
-          Skapa
+          Uppdatera
         </Button>
       </CardFooter>
     </Card>

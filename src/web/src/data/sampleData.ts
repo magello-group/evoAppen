@@ -7,6 +7,8 @@ export interface dateInterFace {
   numberOfRespondents: number;
   _id: string;
   editId: string;
+  coworker: string[];
+  lastresponsedate: string;
 
 }
 
@@ -18,6 +20,8 @@ export const sampleData: dateInterFace[] = [
     numberOfRespondents: 4,
     _id: "66460a2b4c82500bb88ac220",
     editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    coworker:["Dag Reuterskiöld", "Erik Von Knorring"],
+    lastresponsedate: "2024-06-16",
   },
   {
     name: "EventAppen Retro",
@@ -26,6 +30,8 @@ export const sampleData: dateInterFace[] = [
     numberOfRespondents: 1,
     _id: "66460a2b4c82500bb88ac220",
     editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    coworker:["Erik Von Knorring"],
+    lastresponsedate: "2024-06-16",
   },
   {
     name: "Inför lönerev",
@@ -34,6 +40,8 @@ export const sampleData: dateInterFace[] = [
     numberOfRespondents: 3,
     _id: "66460a2b4c82500bb88ac220",
     editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    coworker:["Alexander Bard"],
+    lastresponsedate: "2024-06-16",
   },
   {
     name: "Dags möhippa",
@@ -42,6 +50,8 @@ export const sampleData: dateInterFace[] = [
     numberOfRespondents: 2,
     _id: "66460a2b4c82500bb88ac220",
     editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+    coworker:["Isak Reuterskiöld"],
+    lastresponsedate: "2024-06-16",
   },
 ];
 
@@ -61,6 +71,39 @@ export const sampleDataCoworkers: Coworkers[] = [
   },
   {
     name: "Isak Reuterskiöld",
+  },
+  {
+    name: "Kristin Rosenhall",
+  },
+  {
+    name: "Patrik Jansson",
+  },
+  {
+    name: "Per Daynac",
+  },
+  {
+    name: "Johan Ytterberg",
+  },
+  {
+    name: "Samir Talic",
+  },
+  {
+    name: "Test Testsson",
+  },
+  {
+    name: "Alexander Bard Junior",
+  },
+  {
+    name: "Isak Reuterskiöld Junior",
+  },
+  {
+    name: "Kristin Rosenhall Senior",
+  },
+  {
+    name: "Patrik Jansson Cheef",
+  },
+  {
+    name: "Per Daynac Senior",
   },
 ];
 
@@ -575,3 +618,15 @@ export const roundInsert = {
   ],
   templateId: "aabbccdd-0011-2233-4455-66778899aabb",
 };
+
+interface TemplateData {
+  id: string;
+  name: string;
+}
+
+export const templateData: TemplateData[] = [
+  {id: "1", name:"magello"},
+  {id: "2", name:"lön"},
+  {id: "3", name:"test"}
+]
+

@@ -48,7 +48,13 @@ export const columns: ColumnDef<dateInterFace>[] = [
     accessorKey: "name",
     header: () => <div className="text-left">Namn</div>,
     cell: ({ row }) => {
-      return <Link to={`/round/view/${row.original._id}`}><span className="no-underline hover:underline">{row.getValue("name")}</span></Link>;
+      return (
+        <Link to={`/round/view/${row.original._id}`}>
+          <span className="no-underline hover:underline">
+            {row.getValue("name")}
+          </span>
+        </Link>
+      );
     },
   },
   {
@@ -113,12 +119,17 @@ export const columns: ColumnDef<dateInterFace>[] = [
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Settings className="mr-3 size-4" />
-              Inställningar
+              <Link to={`/newfeedbackround/edit/${row.getValue("name")}`}>
+                <span className="no-underline hover:underline">
+                  Inställningar
+                </span>
+              </Link>
             </DropdownMenuItem>
             <DropdownMenuItem>
               <Pencil className="mr-3 size-4" />
-              <Link to={`/round/edit/${row.original.editId}`}><span className="no-underline">Lämna feedback</span></Link>
-
+              <Link to={`/round/edit/${row.original.editId}`}>
+                <span className="no-underline">Lämna feedback</span>
+              </Link>
             </DropdownMenuItem>
             {/* <DropdownMenuItem>
               <EyeIcon className="mr-3 size-4" />
