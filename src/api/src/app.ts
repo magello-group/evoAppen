@@ -57,8 +57,9 @@ export const createApp = async (): Promise<Express> => {
   app.use("/lists/:listId/items", items);
   app.use("/lists", lists);
   console.log("test log");
+  
   // round routes
-  app.use("/edit", rounds);
+  app.use("/round", rounds);
 
   // Swagger UI
   const swaggerDocument = yaml.load("./openapi.yaml");

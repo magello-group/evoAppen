@@ -1,20 +1,36 @@
 import express, { Request } from "express";
 
 import { RoundListModel } from "../models/round";
+import { TemplateModel } from "../models/template"; // Import the TemplateModel
 import mongoose from "mongoose";
 
 const router = express.Router();
 
-type TodoListPathParams = {
+type EditParams = {
   editId: string;
 };
+type ViewParams = {
+  viewId: string;
+};
 
-router.get("/:editId", async (req: Request<TodoListPathParams>, res) => {
+router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
   try {
     const list = await RoundListModel.findOne({ editId: req.params.editId })
       .orFail()
       .exec();
-    res.json(list);
+
+    if (!list.templateId) {
+      return res.status(404).send("Template not found");
+    }
+
+    const template = await TemplateModel.findById(list.templateId).exec();
+    if (!template) {
+      return res.status(404).send("Template not found");
+    }
+    const doc = list.toObject();
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, ...rest } = doc;
+    res.json({ ...rest, templateData: template });
   } catch (err: any) {
     switch (err.constructor) {
       case mongoose.Error.CastError:
@@ -26,18 +42,32 @@ router.get("/:editId", async (req: Request<TodoListPathParams>, res) => {
   }
 });
 
-// router.get("/:editId", async (req: Request, res: Response) => {
-//   const editId: string = req.params.editId; // Ensure editId is treated as a string
-//   try {
-//     const round = await RoundListModel.findOne({ editId }).exec();
-//     if (!round) {
-//       return res.status(404).json({ error: "Round not found" });
-//     }
-//     res.json(round);
-//   } catch (error) {
-//     console.error("Error fetching round:", error);
-//     res.status(500).json({ error: "Internal server error" });
-//   }
-// });
+router.get("/view/:viewId", async (req: Request<ViewParams>, res) => {
+  try {
+    const list = await RoundListModel.findById(req.params.viewId)
+      .orFail()
+      .exec();
+
+    if (!list.templateId) {
+      return res.status(404).send("Template not found");
+    }
+
+    const template = await TemplateModel.findById(list.templateId).exec();
+    if (!template) {
+      return res.status(404).send("Template not found");
+    }
+    const doc = list.toObject();
+    // remove _id to mask viewChart
+    res.json({ ...doc, templateData: template });
+  } catch (err: any) {
+    switch (err.constructor) {
+      case mongoose.Error.CastError:
+      case mongoose.Error.DocumentNotFoundError:
+        return res.status(404).send();
+      default:
+        throw err;
+    }
+  }
+});
 
 export default router;

@@ -1,34 +1,5 @@
 import mongoose, { Schema } from "mongoose";
 
-export interface RoundData {
-  name: string;
-  roundId: string;
-  editId: string; // This differentiation might only need to exist in the backend
-  created: Date;
-  answers: UserResponse[];
-  templateData?: TemplateData;
-  templateId: string;
-  authorizedUsers: User[];
-  authorizedUserIds: string[];
-}
-
-export interface User {
-  userId: string;
-  userName: string;
-}
-
-export interface UserResponse {
-  userId: string;
-  isAnonymous: boolean;
-  answers: Answer;
-}
-export interface Answer {
-  [questionId: string]: {
-    score: number;
-    motivation: string;
-  };
-}
-
 export interface TemplateData {
   templateId: string;
   templateName: string;
@@ -64,10 +35,6 @@ export interface Question {
 
 const schema = new Schema(
   {
-    templateId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "templates", // This should match the name you used when creating the TemplateModel
-    },
     name: {
       type: String,
       required: true,
@@ -82,8 +49,8 @@ const schema = new Schema(
   }
 );
 
-export const RoundListModel = mongoose.model<RoundData>(
-  "rounds",
+export const TemplateModel = mongoose.model<TemplateData>(
+  "templates",
   schema,
-  "rounds"
+  "templates"
 );

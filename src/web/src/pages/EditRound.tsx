@@ -31,7 +31,7 @@ import { roundInsert } from '@/data/sampleData'
 import config from "@/config/config";
 
 
-const baseUrl = 'http://localhost:8080/api/v1/feedback/';
+
 
 // const response = await fetch(config.api.baseUrl + '/lists');
 // const getList = await response.json();
@@ -53,17 +53,13 @@ export const EditRound = () => {
     const { isPending, error, data } = useQuery({
         queryKey: ['repoData'],
         queryFn: () => {
-            console.log("här")
-            return fetch(config.api.baseUrl + `/edit/${name}`).then((res) =>
+            return fetch(config.api.baseUrl + `/round/edit/${name}`).then((res) =>
                 res.json(),
             )
         },
     })
 
     const mutation = useMutation({ mutationFn });
-
-
-
     const apiData = data
     const [chartData, setChartData] = useState<ChartData[]>([])
     const [accumulatedData, setAccumulatedData] = useState<ChartData[]>([])
