@@ -44,7 +44,8 @@ const COLORS = [
 export const ViewRound = () => {
     const { name = "" } = useParams();
     const { instance, accounts } = useMsal();
-    const { isPending, error, data } = useQuery({
+    // const { isPending, error, data } = useQuery({
+    const { data } = useQuery({
         queryKey: ['repoData'],
         queryFn: async () => {
             const temp = await instance.acquireTokenSilent({

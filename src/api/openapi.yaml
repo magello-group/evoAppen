@@ -22,7 +22,7 @@ components:
       description: A round
       properties:
         name:
-          type: string    
+          type: string
         roundId:
           type: string
         editId:
@@ -37,7 +37,7 @@ components:
           type: string
           format: date
         answers:
-          type: array  
+          type: array
         templateId:
           type: string
 paths:
@@ -55,10 +55,30 @@ paths:
           schema:
             type: string
       responses:
-        '200':
+        "200":
           description: Successful response
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Round'
+                $ref: "#/components/schemas/Round"
 
+  /round/view/{id}:
+    get:
+      operationId: GetEditRound
+      summary: Gets an Edit round
+      tags:
+        - Round
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the edit
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Round"

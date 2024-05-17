@@ -10,7 +10,7 @@ type EditParams = {
   editId: string;
 };
 type ViewParams = {
-  viewId: string;
+  id: string;
 };
 
 router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
@@ -29,7 +29,7 @@ router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
     }
     const doc = list.toObject();
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const { _id, ...rest } = doc;
+    const { _id, answers, ...rest } = doc;
     res.json({ ...rest, templateData: template });
   } catch (err: any) {
     switch (err.constructor) {
@@ -42,11 +42,9 @@ router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
   }
 });
 
-router.get("/view/:viewId", async (req: Request<ViewParams>, res) => {
+router.get("/view/:id", async (req: Request<ViewParams>, res) => {
   try {
-    const list = await RoundListModel.findById(req.params.viewId)
-      .orFail()
-      .exec();
+    const list = await RoundListModel.findById(req.params.id).orFail().exec();
 
     if (!list.templateId) {
       return res.status(404).send("Template not found");
