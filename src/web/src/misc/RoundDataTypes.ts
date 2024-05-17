@@ -1,10 +1,9 @@
 export interface RoundData {
   name: string;
-  roundId: string;
   editId: string; // This differentiation might only need to exist in the backend
   created: Date;
   answers: UserResponse[];
-  templateData: TemplateData;
+  templateData?: TemplateData;
   templateId: string;
   authorizedUsers: User[];
   authorizedUserIds: string[];
@@ -15,8 +14,7 @@ export interface User {
 }
 
 export interface UserResponse {
-  userId: string;
-  isAnonymous: boolean;
+  userName: string;
   answers: Answer;
 }
 export interface Answer {

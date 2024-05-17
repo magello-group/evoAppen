@@ -5,14 +5,12 @@ info:
   title: EVO ZWAGGAH
   contact:
     email: azdevteam@microsoft.com
-
 components:
   schemas:
     Round:
       type: object
       required:
         - name
-        - roundId
         - editId
         - created
         - answers
@@ -22,8 +20,6 @@ components:
       description: A round
       properties:
         name:
-          type: string
-        roundId:
           type: string
         editId:
           type: string
@@ -39,6 +35,22 @@ components:
         answers:
           type: array
         templateId:
+          type: string
+    UserResponse:
+      type: object
+      properties:
+        userName:
+          type: string
+        answers:
+          type: object
+          additionalProperties:
+            $ref: "#/components/schemas/Answer"
+    Answer:
+      type: object
+      properties:
+        score:
+          type: number
+        motivation:
           type: string
 paths:
   /round/edit/{editId}:
@@ -75,6 +87,33 @@ paths:
           description: ID of the edit
           schema:
             type: string
+      responses:
+        "200":
+          description: Successful response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Round"
+
+  /round/edit/{id}:
+    put:
+      summary: Update answers in RoundData
+      operationId: UpdateRoundData
+      tags:
+        - Round
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of the edit
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserResponse"
       responses:
         "200":
           description: Successful response

@@ -65,7 +65,6 @@ export const ViewRound = () => {
         },
     })
     const apiData = data
-    console.log(data)
     const [chartData, setChartData] = useState<ChartData[]>([])
     const [accumulatedData, setAccumulatedData] = useState<ChartData[]>([])
     const [dropDownSettings, setDropDownSettings] = useState<DropDownSettings>({ dataIsAcc: false, chartIsSticky: false, sideBySide: true })
@@ -77,7 +76,7 @@ export const ViewRound = () => {
     useEffect(() => {
         if (apiData) {
             const tempData: ChartData[] = transposeToChartDataforView(apiData?.answers, apiData?.templateData?.categories ?? [])
-            setSelectedUsers(apiData?.answers.map((answer: UserResponse) => answer.userId) ?? [])
+            setSelectedUsers(apiData?.answers.map((answer: UserResponse) => answer.userName) ?? [])
             setChartData(tempData)
         }
     }, [apiData, categories])
@@ -96,7 +95,7 @@ export const ViewRound = () => {
             <Header title={apiData?.name ?? ""} titleSize="l" hideLogin={false} description={``} />
             <div className="flex justify-between mb-2">
                 <Link to={`/`}><Button variant={'outline'} className="no-underline hover:underline">  <ArrowLeftIcon /><span className="text-xs ml-1">Tillbaka</span></Button></Link>
-                <SettingsDropDown allUsers={apiData?.answers.map((answer: UserResponse) => answer.userId) ?? []} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} dropDownSettings={dropDownSettings} setDropDownSettings={setDropDownSettings} isSmallDevice={isSmallDevice} />
+                <SettingsDropDown allUsers={apiData?.answers.map((answer: UserResponse) => answer.userName) ?? []} selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} dropDownSettings={dropDownSettings} setDropDownSettings={setDropDownSettings} isSmallDevice={isSmallDevice} />
             </div>
 
             <>
@@ -134,7 +133,7 @@ export const ViewRound = () => {
                         </ResizablePanel>
                         <ResizableHandle withHandle />
                         <ResizablePanel defaultSize={38}>
-                            <ScrollArea>
+                            <ScrollArea className="h-full">
                                 <ScoreDescriptions
                                     scoreDescriptions={apiData?.templateData?.scoreScale?.descriptions ?? []}
                                 />
@@ -143,8 +142,6 @@ export const ViewRound = () => {
                     </ResizablePanelGroup>
                 )}
             </>
-
-
             <Card className="mb-8">
                 {categories.map((category, index) =>
                     <div key={category?.categoryName} className="px-4 md:px-12">
@@ -153,25 +150,6 @@ export const ViewRound = () => {
                                 <AccordionTrigger className="pb-6 text-lg">{category?.categoryName}</AccordionTrigger>
                                 <AccordionContent className="py-1">
                                     <ContentAsTable category={category} answers={apiData?.answers ?? []} selectedUsers={selectedUsers} />
-                                    {/* {category.questions.map((question) =>
-                                        <div key={question.id}>
-                                            <div>{question.text}</div>
-                                            <ul className="my-6 ml-6">
-                                                {apiData?.answers.map(userResponse => {
-                                                    const isSelected = selectedUsers.includes(userResponse.userId);
-                                                    if (!isSelected) return null;
-                                                    const { score, motivation } = userResponse.answers[question.id];
-                                                    return (
-                                                        <li key={userResponse.userId} className="mt-2">
-                                                            <span className="font-bold">{userResponse.userId}</span>
-                                                            {`: ${score} - `}
-                                                            <span className="italic">{motivation}</span>
-                                                        </li>
-                                                    );
-                                                })}
-                                            </ul>
-                                        </div>
-                                    )} */}
                                 </AccordionContent>
                             </AccordionItem>
                         </Accordion>
@@ -200,12 +178,12 @@ const ContentAsTable = ({ category, answers, selectedUsers }: { category: Catego
                     </TableHeader>
                     <TableBody>
                         {answers.map((userResponse: UserResponse) => {
-                            const isSelected = selectedUsers.includes(userResponse.userId);
+                            const isSelected = selectedUsers.includes(userResponse.userName);
                             if (!isSelected) return null;
                             const { score, motivation } = userResponse.answers[question.id];
                             return (
-                                <TableRow key={userResponse.userId}>
-                                    <TableCell className="">{userResponse?.userId}</TableCell>
+                                <TableRow key={userResponse.userName}>
+                                    <TableCell className="">{userResponse?.userName}</TableCell>
                                     <TableCell className="font-bold">{score}</TableCell>
                                     <TableCell className="italic ">{motivation}</TableCell>
                                 </TableRow>
@@ -215,8 +193,6 @@ const ContentAsTable = ({ category, answers, selectedUsers }: { category: Catego
                 </>
                     : <TableCaption className="italic mb-4">Inga registrerade svar</TableCaption>
                 }
-
-
             </Table>
         </div>
     ))
@@ -256,7 +232,7 @@ const ViewChart = ({ apiData, chartData, dataIsAcc = false, selectedUsers, isSma
                     }
                 />
                 <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => `${chartData[b].subject} ${!dataIsAcc ? (b + 1) : ''}`} />
-                <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData.scoreScale.end ?? 6]} />
+                <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData?.scoreScale.end ?? 6]} />
                 {selectedUsers.map((user, index) => <Radar key={user + index} name={user} dataKey={user} stroke={COLORS[index]} fill={COLORS[index]} fillOpacity={0.8} />)}
             </RadarChart>
         </ResponsiveContainer>)
