@@ -7,6 +7,7 @@ export interface RoundData {
   templateId: string;
   authorizedUsers: User[];
   authorizedUserIds: string[];
+  userName?: string;
 }
 export interface User {
   userId: string;
@@ -24,11 +25,18 @@ export interface Answer {
   };
 }
 
+export enum NameIsAnonymous {
+  ANONYMT,
+  NAMNGIVET,
+  VALFRITT,
+}
+
 export interface TemplateData {
-  templateId: string;
+  _id: string;
   templateName: string;
   scoreScale: scoreScale;
   mandatoryMotivations: boolean;
+  nameIsAnonymous: NameIsAnonymous;
   categories: Category[];
   colorScale: Color;
 }
@@ -76,4 +84,9 @@ export interface RoundInsertType {
     userId: string;
   }[];
   templateId: string;
+}
+
+export interface RoundSubmit {
+  userName: string;
+  answers: Answer;
 }

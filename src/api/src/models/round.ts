@@ -27,11 +27,17 @@ export interface Answer {
   };
 }
 
+export enum NameIsAnonymous {
+  ANONYMT,
+  NAMNGIVET,
+  VALFRITT,
+}
 export interface TemplateData {
-  templateId: string;
+  _id: string;
   templateName: string;
   scoreScale: scoreScale;
   mandatoryMotivations: boolean;
+  nameIsAnonymous: NameIsAnonymous;
   categories: Category[];
   colorScale: Color;
 }
@@ -59,8 +65,15 @@ export interface Question {
   id: string;
   text: string;
 }
+const AnswerSchema = new Schema(
+  {
+    userName: String,
+    answers: Schema.Types.Mixed,
+  },
+  { _id: false }
+);
 
-const schema = new Schema(
+const RoundListSchema = new Schema(
   {
     templateId: {
       type: mongoose.Schema.Types.ObjectId,
@@ -71,6 +84,22 @@ const schema = new Schema(
       required: true,
     },
     description: String,
+    editId: {
+      type: String,
+      required: true,
+    },
+    userName: {
+      type: String,
+      required: false,
+    },
+    authorizedUsers: [
+      {
+        userName: String,
+        userId: String,
+      },
+    ],
+    authorizedUserIds: [String],
+    answers: [AnswerSchema],
   },
   {
     timestamps: {
@@ -80,8 +109,6 @@ const schema = new Schema(
   }
 );
 
-export const RoundListModel = mongoose.model<RoundData>(
-  "rounds",
-  schema,
-  "rounds"
-);
+export const RoundListModel = mongoose.model("rounds", RoundListSchema);
+
+// module.exports = RoundListModel;

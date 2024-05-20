@@ -1,10 +1,17 @@
 import mongoose, { Schema } from "mongoose";
 
+export enum NameIsAnonymous {
+  ANONYMT,
+  NAMNGIVET,
+  VALFRITT,
+}
+
 export interface TemplateData {
-  templateId: string;
+  _id: string;
   templateName: string;
   scoreScale: scoreScale;
   mandatoryMotivations: boolean;
+  nameIsAnonymous: NameIsAnonymous;
   categories: Category[];
   colorScale: Color;
 }
