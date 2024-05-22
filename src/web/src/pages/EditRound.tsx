@@ -15,7 +15,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/shadcnComponents/ui/accordion"
-import { Answer, Category, ChartData, DropDownSettings, RoundData, RoundInsertType } from "@/misc/RoundDataTypes";
+import { Answer, Category, ChartData, DropDownSettings, NameIsAnonymous, RoundData, RoundInsertType, RoundSubmit } from "@/misc/RoundDataTypes";
 
 import { Card } from "@/shadcnComponents/ui/card";
 import { Button } from "@/shadcnComponents/ui/button";
@@ -27,7 +27,6 @@ import { initializeFormData, transposeToAcculatedData, transposeToChartDataForEd
 import { ScoreDescriptions, SettingsDropDown } from "@/misc/CommonRoundsComponents";
 import { Label } from "@/shadcnComponents/ui/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { roundInsert } from '@/data/sampleData'
 import config from "@/config/config";
 
 
@@ -36,20 +35,23 @@ import config from "@/config/config";
 // const response = await fetch(config.api.baseUrl + '/lists');
 // const getList = await response.json();
 
-const mutationFn = (newData: RoundInsertType): Promise<Response> => {
-    return fetch(config.api.baseUrl + 'rounds', {
-        method: 'POST',
+const mutationFn = async ({ id, newData }: { id: string, newData: RoundSubmit }): Promise<Response> => {
+    const response = await fetch(config.api.baseUrl + `/round/edit/${id}`, {
+        method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
         },
         body: JSON.stringify(newData),
     });
+    if (!response.ok) {
+        throw new Error('Network response was not ok');
+    }
+    return response;
 };
 
 export const EditRound = () => {
     const { name = "" } = useParams();
-    // const { apiData } = useApiFetch<RoundData>(`rounds/edit/${name}`, false)
-
+    const mutation = useMutation({ mutationFn });
     const { isPending, error, data } = useQuery({
         queryKey: ['editData'],
         queryFn: () => {
@@ -58,8 +60,6 @@ export const EditRound = () => {
             )
         },
     })
-
-    const mutation = useMutation({ mutationFn });
     const apiData = data
     const [chartData, setChartData] = useState<ChartData[]>([])
     const [accumulatedData, setAccumulatedData] = useState<ChartData[]>([])
@@ -67,6 +67,7 @@ export const EditRound = () => {
     const [userName, setUserName] = useState<string>("")
     const [dropDownSettings, setDropDownSettings] = useState<DropDownSettings>({ dataIsAcc: false, chartIsSticky: false, sideBySide: true })
     const [shouldValidate, setShouldValidate] = useState<boolean>(false)
+
 
     const categories: Category[] = useMemo(() => apiData?.templateData?.categories ?? [], [apiData]);
     const formHasError = shouldValidate && (Object.values(formState).some(elem => elem.motivation === "") || userName === "")
@@ -78,6 +79,7 @@ export const EditRound = () => {
         if (apiData) {
             setFormState(initializeFormData(apiData.templateData))
             setChartData(transposeToChartDataForEdit(categories, apiData?.templateData?.scoreScale?.start))
+            setUserName(apiData?.userName)
         }
     }, [apiData, categories])
 
@@ -119,20 +121,19 @@ export const EditRound = () => {
                 formOk = false
         }
         if (formOk) {
-            console.log(`${userName} - submitting`)
-            console.log(formState)
+            mutation.mutate({ id: name, newData: { userName, answers: formState } });
         }
     }
     const isSmallDevice = window.innerWidth <= 768
-
+    const nameIsAnonymous = apiData?.templateData?.nameIsAnonymous !== NameIsAnonymous.NAMNGIVET
     return (
         <div id="wrapper" className="flex flex-col text-xs pb-4">
             <Header title={apiData?.name ?? ""} titleSize="l" description={"Du har blivit inbjuden att ge feedback. Dina svar är anonyma. Du svarar genom att betygsätta "} hideLogin={true} />
             <div className="mb-4">
                 <div className="flex justify-between">
                     <span>
-                        <Label htmlFor="name" >Namn</Label>
-                        <Input id="name" className="mt-1" placeholder="Namn" onChange={(e) => setUserName(e.target.value)} />
+                        <Label htmlFor="name" >{nameIsAnonymous ? "Autogenererat namn" : "namn"}</Label>
+                        <Input disabled={nameIsAnonymous} id="name" className="mt-1" value={userName} placeholder="Namn" onChange={(e) => setUserName(e.target.value)} />
                     </span>
                     <div className="flex items-end">
                         <SettingsDropDown allUsers={[]} selectedUsers={[]} setSelectedUsers={() => { }} dropDownSettings={dropDownSettings} setDropDownSettings={setDropDownSettings} isSmallDevice={isSmallDevice} />

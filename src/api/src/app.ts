@@ -3,11 +3,11 @@ import swaggerUI from "swagger-ui-express";
 import cors from "cors";
 import yaml from "yamljs";
 import { getConfig } from "./config";
-import lists from "./routes/lists";
-import items from "./routes/items";
-import rounds from "./routes/rounds";
+import rounds from "./routes/editRounds";
+import protectedRounds from "./routes/viewRounds";
 import { configureMongoose } from "./models/mongoose";
 import { observability } from "./config/observability";
+import auth from "./auth";
 
 // Use API_ALLOW_ORIGINS env var with comma separated urls like
 // `http://localhost:300, http://otherurl:100`
@@ -33,7 +33,6 @@ const originList = (): string[] | string => {
       origins.push(origin);
     });
   }
-
   return origins;
 };
 
@@ -53,13 +52,9 @@ export const createApp = async (): Promise<Express> => {
     })
   );
 
-  // API Routes
-  app.use("/lists/:listId/items", items);
-  app.use("/lists", lists);
-  console.log("test log");
-  
-  // round routes
   app.use("/round", rounds);
+  app.use("/round", auth, protectedRounds);
+  // round routes
 
   // Swagger UI
   const swaggerDocument = yaml.load("./openapi.yaml");

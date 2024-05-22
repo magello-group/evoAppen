@@ -49,7 +49,7 @@ export const ViewRound = () => {
         queryKey: ['viewData'],
         queryFn: async () => {
             const temp = await instance.acquireTokenSilent({
-                scopes: ["User.Read"],
+                scopes: ["api://17f23c8a-5462-44a8-9878-5d6a140b0d84/User.Read"],
                 account: accounts[0]
             })
             const headers = new Headers();

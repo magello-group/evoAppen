@@ -21,11 +21,10 @@
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@shared/*": ["../shared-types/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "../shared-types/**/*"],
   "references": [{ "path": "./tsconfig.node.json" }]
 }

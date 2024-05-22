@@ -1,0 +1,81 @@
+import express, { Request } from "express";
+
+import { RoundListModel } from "../models/round";
+import { NameIsAnonymous, TemplateModel } from "../models/template"; // Import the TemplateModel
+import mongoose from "mongoose";
+import { animals, attributes } from "../models/randomNameList";
+
+const router = express.Router();
+
+type EditParams = {
+  editId: string;
+};
+
+function getRandomInt(max: number) {
+  return Math.floor(Math.random() * max);
+}
+
+router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
+  try {
+    const list = await RoundListModel.findOne({ editId: req.params.editId })
+      .select({ _id: 0 }) // Exclude the _id field from the returned document
+      .orFail()
+      .exec();
+
+    if (!list.templateId) {
+      return res.status(404).send("Template not found");
+    }
+
+    const template = await TemplateModel.findById(list.templateId).exec();
+    if (!template) {
+      return res.status(404).send("Template not found");
+    }
+    const doc = list.toObject();
+    const tempDoc = template.toObject();
+    let userName = "";
+    if (tempDoc.nameIsAnonymous !== NameIsAnonymous.NAMNGIVET) {
+      const rand1 = getRandomInt(attributes.length);
+      const rand2 = getRandomInt(animals.length);
+      userName = `${attributes[rand1]} ${animals[rand2]}`;
+    }
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { _id, answers, ...rest } = doc;
+    res.json({ ...rest, userName, templateData: template });
+  } catch (err: any) {
+    switch (err.constructor) {
+      case mongoose.Error.CastError:
+      case mongoose.Error.DocumentNotFoundError:
+        return res.status(404).send();
+      default:
+        throw err;
+    }
+  }
+});
+
+router.put("/edit/:editId", async (req, res) => {
+  try {
+    const { editId } = req.params;
+    // Find the document with the given editId
+    const existingRound = await RoundListModel.findOne({ editId: editId });
+
+    if (!existingRound) {
+      return res.status(404).send("RoundData not found");
+    }
+
+    // Append new answers to the existing answers array
+    existingRound.answers.push(req.body);
+
+    // Save the updated document
+    const updatedRound = await existingRound.save();
+
+    // Log the updatedRound for debugging purposes
+    console.log("Updated Round:", updatedRound);
+
+    res.status(200).send("Round answers updated successfully");
+  } catch (err) {
+    console.error("Error updating round:", err);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+export default router;
