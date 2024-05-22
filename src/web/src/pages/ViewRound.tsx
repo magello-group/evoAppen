@@ -31,14 +31,12 @@ import { ArrowLeftIcon } from "@radix-ui/react-icons";
 import { useMsal } from "@azure/msal-react";
 import { Header } from "@/components/Header";
 import config from "@/config/config";
+import { colorSchme1 } from "@/misc/colors";
+import { loginRequest } from "@/misc/authConfig";
+// import { colorSchme1, colorSchme2 } from "@/misc/colors";
 
 
 
-const COLORS = [
-    "#82ca9d",
-    "#8884d8",
-    "#ff6384"
-]
 
 
 export const ViewRound = () => {
@@ -49,7 +47,7 @@ export const ViewRound = () => {
         queryKey: ['viewData'],
         queryFn: async () => {
             const temp = await instance.acquireTokenSilent({
-                scopes: ["api://17f23c8a-5462-44a8-9878-5d6a140b0d84/User.Read"],
+                ...loginRequest,
                 account: accounts[0]
             })
             const headers = new Headers();
@@ -210,7 +208,11 @@ const ViewChart = ({ apiData, chartData, dataIsAcc = false, selectedUsers, isSma
                 </defs>
                 <PolarGrid />
                 <Tooltip
-                    itemStyle={{ color: "#1e40af" }}
+                    accessibilityLayer={true}
+                    allowEscapeViewBox={{
+                        x: true,
+                        y: true,
+                    }}
                     wrapperStyle={{ zIndex: 1000, maxWidth: isSmallDevice ? "15rem" : "30rem", textWrap: "wrap" }}
                     labelFormatter={(_, b) =>
                         <>
@@ -233,7 +235,7 @@ const ViewChart = ({ apiData, chartData, dataIsAcc = false, selectedUsers, isSma
                 />
                 <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => `${chartData[b].subject} ${!dataIsAcc ? (b + 1) : ''}`} />
                 <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData?.scoreScale.end ?? 6]} />
-                {selectedUsers.map((user, index) => <Radar key={user + index} name={user} dataKey={user} stroke={COLORS[index]} fill={COLORS[index]} fillOpacity={0.8} />)}
+                {selectedUsers.map((user, index) => <Radar key={user + index} name={user} dataKey={user} stroke={colorSchme1[index]} fill={colorSchme1[index]} fillOpacity={0.3} />)}
             </RadarChart>
         </ResponsiveContainer>)
 }

@@ -55,22 +55,31 @@ router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
 router.put("/edit/:editId", async (req, res) => {
   try {
     const { editId } = req.params;
+    const newAnswer = req.body;
     // Find the document with the given editId
     const existingRound = await RoundListModel.findOne({ editId: editId });
-
+    
     if (!existingRound) {
       return res.status(404).send("RoundData not found");
     }
 
-    // Append new answers to the existing answers array
-    existingRound.answers.push(req.body);
+    // Check for duplicate userName and handle it by appending a suffix
+    const existingUserNames = existingRound.answers.map(
+      (answer) => answer.userName
+    );
+    let userNameToAdd = newAnswer.userName;
+    let suffix = 1;
 
-    // Save the updated document
+    while (existingUserNames.includes(userNameToAdd)) {
+      userNameToAdd = `${newAnswer.userName}(${suffix})`;
+      suffix++;
+    }
+
+    newAnswer.userName = userNameToAdd;
+    existingRound.answers.push(newAnswer);
     const updatedRound = await existingRound.save();
-
-    // Log the updatedRound for debugging purposes
+    
     console.log("Updated Round:", updatedRound);
-
     res.status(200).send("Round answers updated successfully");
   } catch (err) {
     console.error("Error updating round:", err);

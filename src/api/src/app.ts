@@ -5,9 +5,12 @@ import yaml from "yamljs";
 import { getConfig } from "./config";
 import rounds from "./routes/editRounds";
 import protectedRounds from "./routes/viewRounds";
+import newOrEditRounds from "./routes/newOrEditRounds";
+import roundList from "./routes/roundList";
 import { configureMongoose } from "./models/mongoose";
 import { observability } from "./config/observability";
 import auth from "./auth";
+
 
 // Use API_ALLOW_ORIGINS env var with comma separated urls like
 // `http://localhost:300, http://otherurl:100`
@@ -54,6 +57,8 @@ export const createApp = async (): Promise<Express> => {
 
   app.use("/round", rounds);
   app.use("/round", auth, protectedRounds);
+  app.use("/rounds", auth, roundList);
+  app.use("/newfeedbackround", auth, newOrEditRounds);
   // round routes
 
   // Swagger UI

@@ -21,6 +21,17 @@ import {
 import { Checkbox } from "@/shadcnComponents/ui/checkbox";
 import { Link } from "react-router-dom";
 
+
+
+// name: "EventAppen Retro", ok 
+// created: new Date("2024-01-04"),
+// template: "magello",
+// numberOfRespondents: 1,
+// _id: "66460a2b4c82500bb88ac220",
+// editId: "c66e01d4-ec1d-45c1-94a0-5f5e89a02b39",
+// coworker:["Erik Von Knorring"],
+// lastresponsedate: "2024-06-16",
+
 export const columns: ColumnDef<dateInterFace>[] = [
   {
     id: "select",
@@ -58,7 +69,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
     },
   },
   {
-    accessorKey: "created",
+    accessorKey: "createdDate",
     header: ({ column }) => {
       return (
         <div className="text-center">
@@ -73,7 +84,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
       );
     },
     cell: ({ row }) => {
-      const date = new Date(row.getValue("created"));
+      const date = new Date(row.getValue("createdDate"));
       const formatted = new Intl.DateTimeFormat("sv-SE", {
         dateStyle: "short",
       }).format(date);
@@ -82,10 +93,10 @@ export const columns: ColumnDef<dateInterFace>[] = [
     },
   },
   {
-    accessorKey: "template",
+    accessorKey: "templateName",
     header: () => <div className="text-center">Mall</div>,
     cell: ({ row }) => {
-      return <div className="text-center">{row.getValue("template")}</div>;
+      return <div className="text-center">{row.getValue("templateName")}</div>;
     },
   },
   {
@@ -121,7 +132,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
               <Settings className="mr-3 size-4" />
               <Link to={`/newfeedbackround/edit/${row.getValue("name")}`}>
                 <span className="no-underline hover:underline">
-                  Inställningar
+                  Ändra
                 </span>
               </Link>
             </DropdownMenuItem>
@@ -130,6 +141,9 @@ export const columns: ColumnDef<dateInterFace>[] = [
               <Link to={`/round/edit/${row.original.editId}`}>
                 <span className="no-underline">Lämna feedback</span>
               </Link>
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled>
+              QR-kod
             </DropdownMenuItem>
             {/* <DropdownMenuItem>
               <EyeIcon className="mr-3 size-4" />

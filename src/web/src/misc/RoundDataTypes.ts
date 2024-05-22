@@ -8,6 +8,8 @@ export interface RoundData {
   authorizedUsers: User[];
   authorizedUserIds: string[];
   userName?: string;
+  mandatoryMotivations: boolean;
+  nameIsAnonymous: NameIsAnonymous;
 }
 export interface User {
   userId: string;
@@ -35,8 +37,6 @@ export interface TemplateData {
   _id: string;
   templateName: string;
   scoreScale: scoreScale;
-  mandatoryMotivations: boolean;
-  nameIsAnonymous: NameIsAnonymous;
   categories: Category[];
   colorScale: Color;
 }

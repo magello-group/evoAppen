@@ -15,7 +15,7 @@ import {
     AccordionItem,
     AccordionTrigger,
 } from "@/shadcnComponents/ui/accordion"
-import { Answer, Category, ChartData, DropDownSettings, NameIsAnonymous, RoundData, RoundInsertType, RoundSubmit } from "@/misc/RoundDataTypes";
+import { Answer, Category, ChartData, DropDownSettings, NameIsAnonymous, RoundData, RoundSubmit } from "@/misc/RoundDataTypes";
 
 import { Card } from "@/shadcnComponents/ui/card";
 import { Button } from "@/shadcnComponents/ui/button";
@@ -52,6 +52,7 @@ const mutationFn = async ({ id, newData }: { id: string, newData: RoundSubmit })
 export const EditRound = () => {
     const { name = "" } = useParams();
     const mutation = useMutation({ mutationFn });
+    const { mutate, isSuccess } = mutation
     const { isPending, error, data } = useQuery({
         queryKey: ['editData'],
         queryFn: () => {
@@ -70,7 +71,7 @@ export const EditRound = () => {
 
 
     const categories: Category[] = useMemo(() => apiData?.templateData?.categories ?? [], [apiData]);
-    const formHasError = shouldValidate && (Object.values(formState).some(elem => elem.motivation === "") || userName === "")
+    const formHasError = (shouldValidate && (Object.values(formState).some(elem => elem.motivation === "") || userName === "") && !isSuccess)
 
 
 
@@ -89,6 +90,7 @@ export const EditRound = () => {
             setAccumulatedData(transposeToAcculatedData(chartData, ["user1"]))
         }
     }, [dropDownSettings, chartData])
+
 
     if (isPending) return 'Loading...'
 
@@ -121,7 +123,8 @@ export const EditRound = () => {
                 formOk = false
         }
         if (formOk) {
-            mutation.mutate({ id: name, newData: { userName, answers: formState } });
+            mutate({ id: name, newData: { userName, answers: formState } });
+
         }
     }
     const isSmallDevice = window.innerWidth <= 768
@@ -195,7 +198,7 @@ export const EditRound = () => {
                                                 <div className="mt-3" key={question.id}>{ii + 1}. {question.text}</div>
                                                 <ScoreComponent id={question.id} start={apiData?.templateData.scoreScale.start ?? 0} end={apiData?.templateData.scoreScale.end ?? 6} formState={formState} onScoreChange={onChange} />
                                             </div>
-                                            <Input className="mt-2 mb-2" placeholder="Varför gav du betyget?" onChange={(e) => onChange(e.target.value, question.id, 'text')} />
+                                            <Input disabled={isSuccess || isPending} className="mt-2 mb-2" placeholder="Varför gav du betyget?" onChange={(e) => onChange(e.target.value, question.id, 'text')} />
                                             {(shouldValidate && formState[question.id].motivation === "") && <ErrorP text="Fältet är obligatoriskt" />}
                                         </div>
                                     )}
@@ -208,7 +211,7 @@ export const EditRound = () => {
 
             <div className="flex justify-end">
                 <div className="flex flex-col items-end">
-                    <Button className="w-fit " onClick={() => submitRound()}>Skicka in</Button>
+                    <Button disabled={isSuccess} className="w-fit " onClick={() => submitRound()}>{isSuccess ? `Alles gut 👍` : `Skicka in`}</Button>
                     {
                         formHasError && <ErrorP text={`Det saknas motiveringar ${userName === "" ? " och namn" : ""}`} />
                     }

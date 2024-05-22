@@ -12,13 +12,9 @@ import "./App.css";
 
 import { EditRound } from "./pages/EditRound";
 import NewFeedbackRound from "./pages/NewFeedbackRound";
-import EditNewFeedbackRound from "./pages/EditNewFeedbackRound";
 import { InteractionStatus } from "@azure/msal-browser";
 import Home from "./pages/Home";
-import config from "./config/config";
-
 import { ViewRound } from "./pages/ViewRound";
-import { Button } from "./shadcnComponents/ui/button";
 import NewTemplate from "./pages/NewTemplate";
 
 const App: React.FC = () => {
@@ -32,20 +28,7 @@ const App: React.FC = () => {
               path="/"
               element={
                 <ProtectedRouteWrapper>
-                  <>
-                    <Button
-                      onClick={async () => {
-                        const response = await fetch(
-                          config.api.baseUrl + "/lists"
-                        );
-                        const getList = await response.json();
-                        console.log(getList);
-                      }}
-                    >
-                      HEJ
-                    </Button>
-                    <Home />
-                  </>
+                  <Home />
                 </ProtectedRouteWrapper>
               }
             />
@@ -53,7 +36,7 @@ const App: React.FC = () => {
               path="/round/view/:name"
               element={
                 <ProtectedRouteWrapper>
-                  <ViewRound />{" "}
+                  <ViewRound />
                 </ProtectedRouteWrapper>
               }
             />
@@ -61,7 +44,7 @@ const App: React.FC = () => {
               path="/newfeedbackround"
               element={
                 <ProtectedRouteWrapper>
-                  <NewFeedbackRound />{" "}
+                  <NewFeedbackRound />
                 </ProtectedRouteWrapper>
               }
             />
@@ -70,7 +53,7 @@ const App: React.FC = () => {
               path="/newfeedbackround/edit/:name"
               element={
                 <ProtectedRouteWrapper>
-                  <EditNewFeedbackRound />{" "}
+                  <NewFeedbackRound />
                 </ProtectedRouteWrapper>
               }
             />
@@ -78,7 +61,7 @@ const App: React.FC = () => {
               path="/newtemplate"
               element={
                 <ProtectedRouteWrapper>
-                  <NewTemplate />{" "}
+                  <NewTemplate />
                 </ProtectedRouteWrapper>
               }
             />

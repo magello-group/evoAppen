@@ -8,12 +8,14 @@ export interface RoundData {
   templateData?: TemplateData;
   templateId: string;
   authorizedUsers: User[];
-  authorizedUserIds: string[];
+  authorizedUsersIds: string[];
+  lastDate: Date;
 }
 
 export interface User {
   userId: string;
   userName: string;
+  id?: string;
 }
 
 export interface UserResponse {
@@ -96,10 +98,12 @@ const RoundListSchema = new Schema(
       {
         userName: String,
         userId: String,
+        _id: String,
       },
     ],
-    authorizedUserIds: [String],
+    authorizedUsersIds: [String],
     answers: [AnswerSchema],
+    lastDate: Date,
   },
   {
     timestamps: {
