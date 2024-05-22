@@ -11,6 +11,9 @@ import {
   QueryClient,
   QueryClientProvider,
 } from '@tanstack/react-query'
+
+// VERSION 1.0
+
 /**
  * Initialize a PublicClientApplication instance which is provided to the MsalProvider component
  * We recommend initializing this outside of your root component to ensure it is not re-initialized on re-renders
