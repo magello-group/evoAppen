@@ -202,7 +202,7 @@ export const EditRound = () => {
                                         <div key={ii} className="flex flex-col mb-8">
                                             <div className="md:flex md:flex-row md:justify-between">
                                                 <div className="mt-3" key={question.id}>{ii + 1}. {question.text}</div>
-                                                <ScoreComponent id={question.id} start={apiData?.templateData.scoreScale.start ?? 0} end={apiData?.templateData.scoreScale.end ?? 6} formState={formState} onScoreChange={onChange} />
+                                                <ScoreComponent id={question.id} start={apiData?.templateData.scoreScale.start ?? 0} end={apiData?.templateData.scoreScale.end ?? 6} formState={formState} onScoreChange={onChange} disabled={isSuccess} />
                                             </div>
                                             <Input disabled={isSuccess || isPending} className="mt-2 mb-2" placeholder="Varför gav du betyget?" onChange={(e) => onChange(e.target.value, question.id, 'text')} />
                                             {(shouldValidate && formState[question.id].motivation === "") && <ErrorP text="Fältet är obligatoriskt" />}
@@ -272,7 +272,7 @@ const EditChart = ({ apiData, chartData, dataIsAcc = false, isSmallDevice = fals
         </ResponsiveContainer>)
 }
 
-const ScoreComponent = ({ id, start, end, formState, onScoreChange }: { id: string, start: number, end: number, formState: Answer, onScoreChange: (newScore: number, id: string, type: 'score' | 'text') => void }) => {
+const ScoreComponent = ({ id, start, end, formState, onScoreChange, disabled }: { id: string, start: number, end: number, formState: Answer, onScoreChange: (newScore: number, id: string, type: 'score' | 'text') => void, disabled: boolean }) => {
     const score = formState[id]?.score ?? 1
     return (
         <div className="flex items-center justify-center space-x-2">
@@ -281,7 +281,7 @@ const ScoreComponent = ({ id, start, end, formState, onScoreChange }: { id: stri
                 size="icon"
                 className="h-12 w-12 md:h-8 md:w-8 shrink-0 rounded-full mt-2"
                 onClick={() => onScoreChange(score - 1, id, 'score')}
-                disabled={(score <= start)}
+                disabled={(score <= start) || disabled}
             >
                 <Minus className="h-4 w-4" />
                 <span className="sr-only">Lägg till poäng</span>
@@ -297,7 +297,7 @@ const ScoreComponent = ({ id, start, end, formState, onScoreChange }: { id: stri
                 size="icon"
                 className="h-12 w-12 md:h-8 md:w-8 shrink-0 rounded-full mt-2"
                 onClick={() => onScoreChange(score + 1, id, 'score')}
-                disabled={(score >= end)}
+                disabled={(score >= end) || disabled}
             >
                 <Plus className="h-4 w-4" />
                 <span className="sr-only">Ta bort poäng</span>

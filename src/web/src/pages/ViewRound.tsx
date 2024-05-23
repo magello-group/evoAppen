@@ -142,7 +142,7 @@ export const ViewRound = () => {
                     </ResizablePanelGroup>
                 )}
             </>
-            <Card className="mb-8">
+            <Card className="mb-8 mt-4">
                 {categories.map((category, index) =>
                     <div key={category?.categoryName} className="px-4 md:px-12">
                         <Accordion type="single" collapsible defaultValue="item-0" >
@@ -164,7 +164,7 @@ export const ViewRound = () => {
 const ContentAsTable = ({ category, answers, selectedUsers }: { category: Category, answers: UserResponse[], selectedUsers: string[] }) => {
     return category.questions.map((question, index) => (
         <div key={question.id}>
-            <p className="my-2 font-bold">
+            <p className="my-4 font-bold">
                 {index + 1}. {question.text}
             </p>
             <Table className="rounded-lg border">

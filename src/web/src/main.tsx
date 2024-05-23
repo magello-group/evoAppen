@@ -12,7 +12,7 @@ import {
   QueryClientProvider,
 } from '@tanstack/react-query'
 
-// VERSION 1.0
+// VERSION 1.1
 
 /**
  * Initialize a PublicClientApplication instance which is provided to the MsalProvider component
