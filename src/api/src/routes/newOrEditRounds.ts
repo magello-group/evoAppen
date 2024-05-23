@@ -83,11 +83,11 @@ router.post("/", async (req: Request, res) => {
     });
 
     // Save the new round to the database
-    // const savedRound = await newRound.save();
+    const savedRound = await newRound.save();
 
     // Return the saved round
-    res.status(201).json({});
-    // res.status(201).json(savedRound);
+    // res.status(201).json({});
+    res.status(201).json(savedRound);
   } catch (err: any) {
     switch (err.constructor) {
       case mongoose.Error.ValidationError:
