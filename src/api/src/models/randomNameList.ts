@@ -25,7 +25,6 @@ export const attributes = [
   "Trogen",
   "Trofast",
   "Mjuk",
-  "Hård",
   "Livlig",
   "Äventyrlig",
   "Graciös",

@@ -18,7 +18,9 @@ import config from "@/config/config";
 import { loginRequest } from "@/misc/authConfig";
 import { useMsal } from "@azure/msal-react";
 import { User } from "@/misc/RoundDataTypes";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { Skeleton } from "@/shadcnComponents/ui/skeleton";
+import { Checkbox } from "@/shadcnComponents/ui/checkbox";
 
 
 
@@ -34,6 +36,7 @@ const FormComponent = () => {
       template: '',
       lastDate: null,
       nameIsAnonymous: 'ANONYMT',
+      mandatoryMotivations: false
     },
     mode: 'onSubmit', // Ensures validation runs on submit, not on component mount
   });
@@ -41,6 +44,7 @@ const FormComponent = () => {
   const [open, setOpen] = useState(false)
   const identification = watch("nameIsAnonymous");
   const [messageState, setMessageState] = useState("")
+  const [mandatoryMotivations, setMandatoryMotivations] = useState(false)
 
   useEffect(() => {
     function newText() {
@@ -117,16 +121,19 @@ const FormComponent = () => {
     },
   });
 
-  const { mutate, isSuccess, isError: isMutationError, error: mutationError } = mutation;
-
+  const { mutate, isPending, error: mutationError } = mutation;
+  const navigate = useNavigate();
 
 
   const onSubmit = (inData) => {
+    console.log(inData)
     // React form handle validation
-
-
     const coWorkersObjectArray = selectedCoWorkers.map((elem: string) => data?.coWorkerList?.find((user: User) => user.userName === elem))
-    mutate({ ...inData, authorizedUsers: coWorkersObjectArray, description: messageState })
+    mutate({ ...inData, authorizedUsers: coWorkersObjectArray, description: messageState, mandatoryMotivations: mandatoryMotivations }, {
+      onSuccess() {
+        navigate('/');
+      },
+    })
 
   };
 
@@ -140,7 +147,17 @@ const FormComponent = () => {
 
   if (isLoading)
     return (
-      <div>Loading</div>)
+      <Card className="w-full p-10">
+        <div className="flex flex-col space-y-12">
+          <Skeleton className="h-10  w-3/4" />
+          <Skeleton className="h-10 w-3/4" />
+          <Skeleton className="h-10  w-3/4" />
+          <Skeleton className="h-10  w-3/4" />
+          <Skeleton className="h-10  w-3/4" />
+          <Skeleton className="h-10  w-3/4" />
+
+        </div>
+      </Card>)
 
   return (
     <Card className="w-full p-10">
@@ -328,7 +345,7 @@ const FormComponent = () => {
               </div>
             </div>
             {/* Last Date Field */}
-            <div className="flex flex-col justify-between">
+            <div className="flex flex-col justify-between pt-4">
               <div className="flex flex-row justify-start items-center ">
                 <label htmlFor="lastDate" className="pr-4 mr-4 w-1/4">
                   Sista svarsdatum
@@ -357,11 +374,25 @@ const FormComponent = () => {
                   )}
                 />
               </div>
-              <div className="flex flex-row justify-start  w-[300px] h-10">
+              <div className="flex flex-row justify-start  w-[300px] h-10 pt-2">
                 <p className="text-sm font-medium text-red-500 dark:text-red-900">
                   {errors?.lastDate?.message as string}
                 </p>
               </div>
+            </div>
+
+            <div className="flex flex-col justify-between pt-4">
+              <div className="flex flex-row justify-start items-center ">
+                <label htmlFor="" className="pr-4 mr-4 w-1/4">
+                  Motiveringar är obligatoriska
+                </label>
+                <Checkbox
+                  checked={mandatoryMotivations}
+                  onCheckedChange={(value) => setMandatoryMotivations(!!value)}
+                />
+
+              </div>
+
             </div>
           </div>
         </form>
@@ -375,7 +406,7 @@ const FormComponent = () => {
           <a href="/">Avbryt</a>
         </Button>
         <Button type="submit" form="nyfeedbackform">
-          Skapa
+          {isPending ? "Skapar..." : "Skapa"}
         </Button>
       </CardFooter>
     </Card >

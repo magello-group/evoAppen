@@ -106,6 +106,7 @@ export const ViewRound = () => {
                                 dataIsAcc={dropDownSettings.dataIsAcc}
                                 selectedUsers={selectedUsers}
                                 isSmallDevice={isSmallDevice}
+                                categories={categories}
                             />
                         </Card>
                         <Card className="my-4">
@@ -126,6 +127,7 @@ export const ViewRound = () => {
                                 dataIsAcc={dropDownSettings.dataIsAcc}
                                 selectedUsers={selectedUsers}
                                 isSmallDevice={isSmallDevice}
+                                categories={categories}
                             />
 
                         </ResizablePanel>
@@ -196,7 +198,7 @@ const ContentAsTable = ({ category, answers, selectedUsers }: { category: Catego
     ))
 }
 
-const ViewChart = ({ apiData, chartData, dataIsAcc = false, selectedUsers, isSmallDevice = false }: { apiData: RoundData | undefined, chartData: ChartData[], dataIsAcc: boolean, selectedUsers: string[], isSmallDevice: boolean }) => {
+const ViewChart = ({ apiData, chartData, dataIsAcc = false, selectedUsers, isSmallDevice = false, categories }: { apiData: RoundData | undefined, chartData: ChartData[], dataIsAcc: boolean, selectedUsers: string[], isSmallDevice: boolean, categories: Category[] }) => {
     return (
         <ResponsiveContainer width="99%" height="99%" className={""}>
             <RadarChart cx="50%" cy="50%" outerRadius="80%" data={chartData} margin={{ top: 0, left: 50, right: 50, bottom: 0 }}>
@@ -233,7 +235,12 @@ const ViewChart = ({ apiData, chartData, dataIsAcc = false, selectedUsers, isSma
                     }
                     }
                 />
-                <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => `${chartData[b].subject} ${!dataIsAcc ? (b + 1) : ''}`} />
+
+                <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => {
+
+                    const index = chartData.filter(item => item.subject === chartData[b].subject).findIndex(elem => elem.id === chartData[b].id) + 1
+                    return `${chartData[b].subject} ${!dataIsAcc ? (index) : ''}`
+                }} />
                 <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData?.scoreScale.end ?? 6]} />
                 {selectedUsers.map((user, index) => <Radar key={user + index} name={user} dataKey={user} stroke={colorSchme1[index]} fill={colorSchme1[index]} fillOpacity={0.3} />)}
             </RadarChart>

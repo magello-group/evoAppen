@@ -28,6 +28,7 @@ import { ScoreDescriptions, SettingsDropDown } from "@/misc/CommonRoundsComponen
 import { Label } from "@/shadcnComponents/ui/label";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import config from "@/config/config";
+import { Skeleton } from "@/shadcnComponents/ui/skeleton";
 
 
 
@@ -92,7 +93,12 @@ export const EditRound = () => {
     }, [dropDownSettings, chartData])
 
 
-    if (isPending) return 'Loading...'
+    if (isPending)
+        return (
+            <div className="flex flex-col space-y-4 w-full pr-8 pt-20 relative">
+                <Skeleton className="h-6 w-full min-w-full" />
+                <Skeleton className="h-[25rem] w-full min-w-full" />
+            </div>)
 
     if (error) return 'An error has occurred: ' + error.message
     const onChange = (newValue: number | string, id: string, type: 'score' | 'text') => {
@@ -255,7 +261,11 @@ const EditChart = ({ apiData, chartData, dataIsAcc = false, isSmallDevice = fals
                     }
                     }
                 />
-                <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => `${chartData[b].subject} ${!dataIsAcc ? (b + 1) : ''}`} />
+                <PolarAngleAxis orientation="outer" dataKey="id" tickFormatter={(_, b) => {
+                    const index = chartData.filter(item => item.subject === chartData[b].subject).findIndex(elem => elem.id === chartData[b].id) + 1
+                    return `${chartData[b].subject} ${!dataIsAcc ? (index) : ''}`
+                }}
+                />
                 <PolarRadiusAxis angle={30} domain={[- 1, apiData?.templateData?.scoreScale.end ?? 6]} />
                 <Radar name={dataIsAcc ? "Medelvärde" : "Ditt svar"} dataKey={"user1"} stroke="#dbeafe" fill="url(#radarchartColorToRed)" fillOpacity={0.8} />
             </RadarChart>
@@ -269,7 +279,7 @@ const ScoreComponent = ({ id, start, end, formState, onScoreChange }: { id: stri
             <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 shrink-0 rounded-full"
+                className="h-12 w-12 md:h-8 md:w-8 shrink-0 rounded-full mt-2"
                 onClick={() => onScoreChange(score - 1, id, 'score')}
                 disabled={(score <= start)}
             >
@@ -285,7 +295,7 @@ const ScoreComponent = ({ id, start, end, formState, onScoreChange }: { id: stri
             <Button
                 variant="outline"
                 size="icon"
-                className="h-8 w-8 shrink-0 rounded-full"
+                className="h-12 w-12 md:h-8 md:w-8 shrink-0 rounded-full mt-2"
                 onClick={() => onScoreChange(score + 1, id, 'score')}
                 disabled={(score >= end)}
             >

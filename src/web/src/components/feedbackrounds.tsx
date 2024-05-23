@@ -5,6 +5,7 @@ import { useMsal } from "@azure/msal-react";
 import { useQuery } from "@tanstack/react-query";
 import { loginRequest } from "@/misc/authConfig";
 import config from "@/config/config";
+import { Skeleton } from "@/shadcnComponents/ui/skeleton";
 
 export default function Feedbackrounds() {
   const { instance, accounts, } = useMsal();
@@ -31,7 +32,11 @@ export default function Feedbackrounds() {
 
 
   if (isLoading)
-    return (<div>Loading</div>)
+    return (
+      <div className="flex flex-col space-y-4 w-full pr-8  relative">
+        <Skeleton className="h-6 w-full min-w-full" />
+        <Skeleton className="h-[25rem] w-full min-w-full" />
+      </div>)
 
   return (
     <DataTable columns={columns} data={data} />
