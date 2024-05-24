@@ -19,7 +19,7 @@ Developed with the help of this [template](https://learn.microsoft.com/en-us/sam
 - [**Azure Monitor**](https://docs.microsoft.com/azure/azure-monitor/) for monitoring and logging
 - [**Azure Key Vault**](https://docs.microsoft.com/azure/key-vault/) for securing secrets
 
-## Getting Started
+## Running the application
 
 While this project is open source, you'll need an Azure infrastructure with environment files. If you work at Magello, environment files are stored internally. Please contact the technical team for access.
 
@@ -28,7 +28,6 @@ While this project is open source, you'll need an Azure infrastructure with envi
 git clone git@github.com:magello-group/evoAppen.git
 cd evoappen
 ```
-Setup Environment Files
 Place the .env file for the frontend in the src/web folder.
 Place the .env file for the API in the src/api folder.
 
@@ -49,7 +48,7 @@ npm install
 npm start
 ```
 
-### Deployment
+### Deploy the application
 Currently, there is no staging or test environment, only production. To release the web or API, you will need an "env-folder" for Azure from the technical team and the Azure Developer CLI. Follow the installation instructions. Access to Azure resources will also need to be granted.
 
 Deploying the Application

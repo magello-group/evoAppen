@@ -2,3 +2,4 @@
 src/web/.env
 src/api/.env
 .DS_Store
+.azure.zip
