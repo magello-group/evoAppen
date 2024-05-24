@@ -1,35 +1,38 @@
 # EvoAppen by Magello
 
-Done with the help of this [template](https://learn.microsoft.com/en-us/samples/azure-samples/todo-nodejs-mongo-swa-func/todo-nodejs-mongo-swa-func/).
+What is EvoAppen?
+
+*I grunder är det ett verktyg för att lämna och visa feedback för konsulter, visualiserat i spindeldiagram.*
+
+Developed with the help of this [template](https://learn.microsoft.com/en-us/samples/azure-samples/todo-nodejs-mongo-swa-func/todo-nodejs-mongo-swa-func/).
 
 ## Stack
 - **Frontend**: TypeScript React, Tailwind CSS, Shadcn
 - **Backend**: TypeScript Node.js API with Express
 - **Database**: MongoDB running on Azure
-- **Authentication**: Login and authentication with Entra using useMsal Hooks and jwt access token to api
+- **Authentication**: Login and authentication with Entra using useMsal Hooks and JWT access tokens for API
 
 ## Azure Infrastructure
 - [**Azure Static Web Apps**](https://docs.microsoft.com/azure/static-web-apps/) to host the web frontend
 - [**Azure Function Apps**](https://docs.microsoft.com/azure/azure-functions/) to host the API backend
-- [**Azure Cosmos DB API for MongoDB**](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) for DB.
+- [**Azure Cosmos DB API for MongoDB**](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) for database
 - [**Azure Monitor**](https://docs.microsoft.com/azure/azure-monitor/) for monitoring and logging
 - [**Azure Key Vault**](https://docs.microsoft.com/azure/key-vault/) for securing secrets
 
 ## Getting Started
 
-While this is open sorce, you'll need a azure infrastucrure with env-files. If you work at magello, env files are stored internally (for now). Ask technial contact.
+While this project is open source, you'll need an Azure infrastructure with environment files. If you work at Magello, environment files are stored internally. Please contact the technical team for access.
 
-**Clone the repository**
-
-```
+### Clone the Repository
+```bash
 git clone git@github.com:magello-group/evoAppen.git
 cd evoappen
 ```
+Setup Environment Files
+Place the .env file for the frontend in the src/web folder.
+Place the .env file for the API in the src/api folder.
 
-Place .env file for fronend in src/web folder
-place .env file for api in src/api folder
-
- **Install dependencies and run app**
+Install Dependencies and Run the App
 
 Frontend
 
@@ -38,25 +41,28 @@ cd src/web
 npm install
 npm run dev
 ```
-API
+
+Api
 ```
 cd src/api
 npm install
 npm start
 ```
 
- **Deploy application**
+### Deployment
+Currently, there is no staging or test environment, only production. To release the web or API, you will need an "env-folder" for Azure from the technical team and the Azure Developer CLI. Follow the installation instructions. Access to Azure resources will also need to be granted.
 
- For now there is no stage/test env, only prod. It you want to release web or api, you will need a "env-folder" for azure from technical contact and install [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/overview). Install instructions [here](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd?tabs=winget-windows%2Cbrew-mac%2Cscript-linux&pivots=os-windows). 
+Deploying the Application
+Ensure you have the azd installed.
+Place the .azure (not zipped) folder in the root of the repository.
+From the root of the repository, run:
 
- Once you have azd installed you should place the .azure (not zipped) folder in the repo root. 
- Now you should be able to run (from root of repo)
+```
+azd auth  # I think(?)
+azd show
+```
 
-
- ```
- azd show
- ```
-and get
+You should see output similar to:
 
 ```
 evoAppen
@@ -67,18 +73,17 @@ evoAppen
     evo3 [Current]
   View in Azure Portal:
     https://portal.azure.com/#@/
+
+````
+
+To deploy, run:
+```
+azd deploy web   # To deploy the frontend
+azd deploy api   # To deploy the backend
+
+# Or deploy both
+azd deploy
 ```
 
-To deploy you run either 
-
-```
-azd deploy web
-azd deploy api
-
-or just 
-azd deploy for both
-```
-
-Happy coding.
-
+Happy coding!
 
