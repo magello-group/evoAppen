@@ -1,4 +1,3 @@
-
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { useMsal } from "@azure/msal-react";
@@ -8,37 +7,36 @@ import config from "@/config/config";
 import { Skeleton } from "@/shadcnComponents/ui/skeleton";
 
 export default function Feedbackrounds() {
-  const { instance, accounts, } = useMsal();
+  const { instance, accounts } = useMsal();
 
   const { data, isLoading } = useQuery({
-    queryKey: ['getRounds'],
+    queryKey: ["getRounds"],
     queryFn: async () => {
       const temp = await instance.acquireTokenSilent({
         ...loginRequest,
-        account: accounts[0]
-      })
+        account: accounts[0],
+      });
       const headers = new Headers();
       const bearer = "Bearer " + temp.accessToken;
       headers.append("Authorization", bearer);
       const options = {
         method: "GET",
-        headers: headers
+        headers: headers,
       };
       return fetch(config.api.baseUrl + `/rounds`, options).then((res) =>
-        res.json(),
-      )
+        res.json()
+      );
     },
-  })
-
+  });
+  console.log(isLoading);
 
   if (isLoading)
     return (
       <div className="flex flex-col space-y-4 w-full pr-8  relative">
         <Skeleton className="h-6 w-full min-w-full" />
         <Skeleton className="h-[25rem] w-full min-w-full" />
-      </div>)
+      </div>
+    );
 
-  return (
-    <DataTable columns={columns} data={data} />
-  );
+  return <DataTable columns={columns} data={data} />;
 }

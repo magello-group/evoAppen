@@ -1,400 +1,489 @@
 "use client";
+import React, { useEffect } from "react";
+import { useForm, useFieldArray } from "react-hook-form";
+import { v4 as uuidv4 } from "uuid";
 import { PlusCircledIcon } from "@radix-ui/react-icons";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/shadcnComponents/ui/card";
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/shadcnComponents/ui/form";
+import { Button } from "@/shadcnComponents/ui/button";
+import { Card, CardContent, CardFooter } from "@/shadcnComponents/ui/card";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/shadcnComponents/ui/accordion";
-import { Input } from "@/shadcnComponents/ui/input";
-
-import { Button } from "@/shadcnComponents/ui/button";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
 import { Label } from "@/shadcnComponents/ui/label";
-import { useState } from "react";
-import { Textarea } from "@/shadcnComponents/ui/textarea";
+import { Trash } from "lucide-react";
+import { useMutation } from "@tanstack/react-query";
+import { loginRequest } from "@/misc/authConfig";
+import { useNavigate } from "react-router-dom";
+import { useMsal } from "@azure/msal-react";
+import config from "@/config/config";
 
-interface Statement {
-  id: number;
+type Statement = {
+  id: string;
   text: string;
-}
+};
 
-interface Category {
-  id: number;
+type Category = {
+  id: string;
   name: string;
   statements: Statement[];
-}
-
-const FormSchema = z.object({
-  name: z.string().min(2, {
-    message: "Namnet måste bestå av minst 2 tecken.",
-  }),
-  size: z
-    .number({
-      message: "Hej Storlek på skala är oblikatorisk.",
-    })
-    .int(),
-  categoryname: z.string().min(1, "Kategorinamn är obligatorisk."),
-  statements: z.array(
-    z.object({
-      text: z.string().min(1, "Påstående är obligatorisk."),
-    })
-  ),
-  heading: z.string().min(2, "Rubrik är obligatorisk."),
-  description: z.string().min(2, "Description är oblikagorisk."),
-});
+};
 
 type FormValues = {
   name: string;
+  scale: number;
+  scaleDetails: { label: string; heading: string; description: string }[];
+  categories: Category[];
 };
 
-const NewTemplateForm = () => {
-  const [categories, setCategories] = useState<Category[]>([]);
-  const [categoryName, setCategoryName] = useState("");
-  const [categoryError, setCategoryError] = useState("");
-  const [scaleSize, setScaleSize] = useState<number>(0);
-  const [scaleInputs, setScaleInputs] = useState<
-    { input: string; textarea: string }[]
-  >([]);
-
-  const form = useForm<z.infer<typeof FormSchema>>({
-    resolver: zodResolver(FormSchema),
+const NewTemplateForm: React.FC = () => {
+  const { instance, accounts } = useMsal();
+  const {
+    control,
+    register,
+    handleSubmit,
+    watch,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitted },
+  } = useForm<FormValues>({
     defaultValues: {
       name: "",
-
-      categoryname: "",
+      scale: 0,
+      scaleDetails: [],
+      categories: [],
     },
   });
-  console.log(form);
-  const addCategory = () => {
-    if (!categoryName.trim()) {
-      setCategoryError("Kategorinamn är obligatorisk.");
-      return;
+
+  const {
+    fields: scaleFields,
+    append: appendScaleField,
+    remove: removeScaleField,
+  } = useFieldArray({
+    control,
+    name: "scaleDetails",
+  });
+
+  const {
+    fields: categoryFields,
+    append: appendCategoryField,
+    remove: removeCategoryField,
+  } = useFieldArray({
+    control,
+    name: "categories",
+  });
+
+  const scale = watch("scale");
+  const categories = watch("categories");
+
+  useEffect(() => {
+    const currentLength = scaleFields.length;
+    if (currentLength < scale) {
+      for (let i = currentLength; i < scale; i++) {
+        appendScaleField({ label: "", heading: "", description: "" });
+      }
+    } else if (currentLength > scale) {
+      for (let i = currentLength; i > scale; i--) {
+        removeScaleField(i - 1);
+      }
     }
-    setCategories([
-      ...categories,
-      { id: Date.now(), name: categoryName, statements: [] },
-    ]);
-    setCategoryName("");
-    setCategoryError("");
-  };
+  }, [scale, appendScaleField, removeScaleField, scaleFields.length]);
 
-  const addStatement = (categoryId: number) => {
-    const newCategories = categories.map((category) => {
-      if (category.id === categoryId) {
+  useEffect(() => {
+    clearErrors("categories");
+  }, [categories, clearErrors]);
+
+  const handleAddStatement = (cIndex: number) => {
+    const updatedCategories = categories.map((category, index) => {
+      if (index === cIndex) {
         return {
           ...category,
-          statements: [...category.statements, { id: Date.now(), text: "" }],
+          statements: [...category.statements, { id: uuidv4(), text: "" }],
         };
       }
       return category;
     });
-    setCategories(newCategories);
+    setValue("categories", updatedCategories);
   };
 
-  const updateStatementText = (
-    categoryId: number,
-    statementId: number,
-    text: string
-  ) => {
-    const newCategories = categories.map((category) => {
-      if (category.id === categoryId) {
+  const handleRemoveStatement = (cIndex: number, sIndex: number) => {
+    const updatedCategories = categories.map((category, index) => {
+      if (index === cIndex) {
+        const updatedStatements = category.statements.filter(
+          (_, idx) => idx !== sIndex
+        );
         return {
           ...category,
-          statements: category.statements.map((statement) =>
-            statement.id === statementId ? { ...statement, text } : statement
-          ),
+          statements: updatedStatements,
         };
       }
       return category;
     });
-    setCategories(newCategories);
+    setValue("categories", updatedCategories);
   };
 
-  const onScaleSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const size = parseInt(e.target.value, 10);
-    setScaleSize(size);
-    setScaleInputs(Array(size).fill({ input: "", textarea: "" }));
+  const validateForm = (data: FormValues) => {
+    let valid = true;
+
+    clearErrors();
+
+    if (data.categories.length === 0) {
+      setError("categories", {
+        type: "manual",
+        message: "Minst en kategori krävs",
+      });
+      valid = false;
+    } else {
+      data.categories.forEach((category, index) => {
+        if (category.name.trim() === "") {
+          setError(`categories.${index}.name`, {
+            type: "manual",
+            message: "Kategorinamn är obligatorisk",
+          });
+          valid = false;
+        }
+        if (category.statements.length === 0) {
+          setError(`categories.${index}.statements`, {
+            type: "manual",
+            message: "Minst ett påstående krävs",
+          });
+          valid = false;
+        }
+      });
+    }
+
+    return valid;
   };
 
-  const updateScaleInput = (
-    index: number,
-    value: string,
-    type: "input" | "textarea"
-  ) => {
-    const newScaleInputs = [...scaleInputs];
-    newScaleInputs[index] = {
-      ...newScaleInputs[index],
-      [type]: value,
-    };
-    setScaleInputs(newScaleInputs);
-  };
+  // Define the mutation using useMutation
+  const mutation = useMutation({
+    mutationFn: async (newData: FormValues) => {
+      const temp = await instance.acquireTokenSilent({
+        ...loginRequest,
+        account: accounts[0],
+      });
+
+      const headers = new Headers();
+      const bearer = "Bearer " + temp.accessToken;
+      headers.append("Authorization", bearer);
+      headers.append("Content-Type", "application/json");
+
+      const response = await fetch(`${config.api.baseUrl}/newtemplate/`, {
+        method: "POST",
+        headers: headers,
+        body: JSON.stringify(newData),
+      });
+
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    },
+  });
+
+  const { mutate } = mutation;
+  const navigate = useNavigate();
 
   const onSubmit = async (data: FormValues) => {
-    try {
-      console.log(data);
-    } catch (error) {
-      console.log(error);
+    if (validateForm(data)) {
+      try {
+        await mutate(data, {
+          onSuccess: () => {
+            navigate("/");
+          },
+        });
+      } catch (error) {
+        console.error("Error submitting the form:", error);
+      }
     }
   };
-
   return (
     <Card className="w-11/12 border-none">
-      <CardHeader>
-        <CardTitle>Konfiguration</CardTitle>
-        <CardDescription>Hur ska mallen fungera.</CardDescription>
-      </CardHeader>
-      <CardContent>
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem className="flex flex-col justify-start items-start">
-                  <div className="flex flex-row justify-start items-center">
-                    <FormLabel className="pr-4 mr-4 w-[90px]">Namn</FormLabel>
-                    <FormControl>
-                      <Input
-                        className="w-[200px]"
-                        placeholder="magello default"
-                        {...field}
-                      />
-                    </FormControl>
-                  </div>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Accordion type="single" collapsible>
-              <AccordionItem value="scoringscale">
-                <AccordionTrigger>Poängskala</AccordionTrigger>
-                <AccordionContent>
-                  <Card className="pt-6">
-                    <CardContent>
-                      <FormField
-                        control={form.control}
-                        name="size"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col justify-start items-start">
-                            <div className="flex flex-row justify-start items-center">
-                              <FormLabel className="pr-4 mr-4 w-[90px]">
-                                Poängsskalans storlek
-                              </FormLabel>
-                              <FormControl>
-                                <Input
-                                  {...form.register("size")}
-                                  /* {...field} */
-                                  value={scaleSize}
-                                  type="number"
-                                  className="w-[200px]"
-                                  placeholder="positiv tal"
-                                  onChange={onScaleSizeChange}
-                                />
-                              </FormControl>
-                            </div>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Name Field */}
+        <div className="flex gap-2 flex-col">
+          <div className="flex flex-col justify-between">
+            <div className="flex flex-row justify-start items-center">
+              <Label htmlFor="name" className="pr-4 mr-4 w-[90px]">
+                Namn
+              </Label>
+              <input
+                {...register("name", {
+                  required: { value: true, message: "Namn är obligatorisk" },
+                })}
+                className="flex w-[240px] h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
+              />
+            </div>
+            <div className="flex flex-row justify-start items-center w-[300px] h-10">
+              <p className="text-sm font-medium text-red-500 dark:text-red-900">
+                {errors.name?.message as string}
+              </p>
+            </div>
+          </div>
 
-                      {scaleInputs.map((scaleInput, index) => (
-                        <Card className="pt-2 my-2 w-2/3">
-                          <CardContent>
-                            <div
-                              key={index}
-                              className="flex justify-start items-start space-x-2 mt-2"
-                            >
-                              <div className="flex flex-col items-start">
-                                <div className="flex flex-row justify-start items-center my-2">
-                                  <div>
-                                    <Label className="pr-4 mr-12 w-[90px]">
-                                      Poäng
-                                    </Label>
-                                  </div>
-                                  <div>
-                                    <Label className="font-medium w-[200px]">{`${
-                                      index + 1
-                                    }p`}</Label>
-                                  </div>
-                                </div>
-                                <FormField
-                                  control={form.control}
-                                  name="heading"
-                                  render={({ field }) => (
-                                    <FormItem className="flex flex-col justify-start items-start my-2">
-                                      <div className="flex flex-row justify-start items-center">
-                                        <FormLabel className="pr-4 mr-4 w-[90px]">
-                                          Rubrik
-                                        </FormLabel>
-                                        <FormControl>
-                                          <Input
-                                            {...field}
-                                            type="text"
-                                            value={scaleInput.input}
-                                            onChange={(e) =>
-                                              updateScaleInput(
-                                                index,
-                                                e.target.value,
-                                                "input"
-                                              )
-                                            }
-                                            className="border p-2 rounded w-[200px]"
-                                          />
-                                        </FormControl>
-                                      </div>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                                <FormField
-                                  control={form.control}
-                                  name="description"
-                                  render={({ field }) => (
-                                    <FormItem className="flex flex-col justify-start items-start">
-                                      <div className="flex flex-row justify-start items-center">
-                                        <FormLabel className="pr-4 mr-4 w-[90px]">
-                                          Beskrivning
-                                        </FormLabel>
-                                        <FormControl>
-                                          <Textarea
-                                            {...field}
-                                            value={scaleInput.textarea}
-                                            onChange={(e) =>
-                                              updateScaleInput(
-                                                index,
-                                                e.target.value,
-                                                "textarea"
-                                              )
-                                            }
-                                            className="flex w-[200px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
-                                          />
-                                        </FormControl>
-                                      </div>
-                                      <FormMessage />
-                                    </FormItem>
-                                  )}
-                                />
-                              </div>
-                            </div>
-                          </CardContent>
-                        </Card>
-                      ))}
-                    </CardContent>
-                  </Card>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="scoringscale">
+              <AccordionTrigger>
+                <Label htmlFor="name" className="w-[90px]">
+                  Poängskala
+                </Label>
+              </AccordionTrigger>
+              <AccordionContent>
+                <Card className="pt-6">
+                  <CardContent>
+                    <div className="flex flex-col justify-between mb-4">
+                      <div className="flex flex-row justify-start items-center">
+                        <Label className="pr-4 mr-4 w-[90px]">
+                          Poängsskalans storlek
+                        </Label>
+                        <input
+                          type="number"
+                          {...register("scale", {
+                            required: "Scale is required",
+                            min: {
+                              value: 1,
+                              message: "Poängsskala måste vara minst 1",
+                            },
+                          })}
+                          className="border p-2 rounded w-[240px]"
+                          placeholder="positiv tal"
+                        />
+                      </div>
+                      {(errors.scale || (isSubmitted && scale === 0)) && (
+                        <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                          <p className="text-sm font-medium text-red-500 dark:text-red-900">
+                            {errors.scale
+                              ? errors.scale.message
+                              : "Poängsskalans är obligatorisk."}
+                          </p>
+                        </div>
+                      )}
+                    </div>
 
-            <Accordion type="single" collapsible>
-              <AccordionItem value="category">
-                <AccordionTrigger>Lägg till kategori</AccordionTrigger>
-                <AccordionContent>
-                  <Card className="pt-6">
-                    <CardContent>
-                      <FormField
-                        control={form.control}
-                        name="categoryname"
-                        render={({ field }) => (
-                          <FormItem className="flex flex-col justify-start items-start">
-                            <div className="flex flex-row justify-start items-center w-full">
-                              <FormControl>
-                                <Input
-                                  {...field}
-                                  value={categoryName}
-                                  onChange={(e) =>
-                                    setCategoryName(e.target.value)
-                                  }
-                                  placeholder="Kategorinamn"
-                                />
-                              </FormControl>
-                              <PlusCircledIcon
-                                className="ml-4"
-                                onClick={addCategory}
-                              />
-                            </div>
-                            {categoryError ? (
-                              <p className="text-red-500">{categoryError}</p>
-                            ) : (
-                              <FormMessage />
-                            )}
-                          </FormItem>
-                        )}
-                      />
-                      <div className="flex flex-col justify-start items-center mt-4">
-                        {categories.map((category) => (
+                    {scaleFields.map((field, index) => (
+                      <div key={index} className="space-y-2 border p-2">
+                        <div className="flex flex-col justify-start items-start">
                           <div
-                            key={category.id}
-                            className="border my-2 p-4 rounded space-y-2  w-full"
+                            key={field.id}
+                            className="flex justify-start items-start space-x-2 mt-2 w-full"
                           >
-                            <div className="flex justify-start items-start">
-                              <Label htmlFor="terms">Lägg till påstående</Label>
-                              <PlusCircledIcon
+                            <div className="flex flex-col items-start w-full">
+                              <div className="flex flex-row justify-start items-center my-2 w-full">
+                                <div>
+                                  <Label className="pr-4 mr-12 w-[90px]">
+                                    Poäng
+                                  </Label>
+                                </div>
+                                <div>
+                                  <Label className="font-medium w-[200px]">{`${
+                                    index + 1
+                                  }p`}</Label>
+                                </div>
+                              </div>
+                              <div className="flex flex-col justify-between">
+                                <div className="flex flex-row justify-start items-start my-2 w-full">
+                                  <Label className="pr-4 mr-4 w-[90px]">
+                                    Rubrik
+                                  </Label>
+                                  <input
+                                    type="text"
+                                    {...register(
+                                      `scaleDetails.${index}.heading` as const,
+                                      {
+                                        required: "Rubrik är obligatorisk.",
+                                      }
+                                    )}
+                                    className="border p-2 rounded w-[240px] ]"
+                                  />
+                                </div>
+                                {errors.scaleDetails?.[index]?.heading && (
+                                  <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                                    <p className="text-sm font-medium text-red-500 dark:text-red-900">
+                                      {
+                                        errors?.scaleDetails[index]?.heading
+                                          ?.message
+                                      }
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="flex flex-col justify-start items-start">
+                                <div className="flex flex-row justify-start items-center my-2">
+                                  <Label className="pr-4 mr-4 w-[90px]">
+                                    Beskrivning
+                                  </Label>
+                                  <textarea
+                                    {...register(
+                                      `scaleDetails.${index}.description` as const,
+                                      {
+                                        required:
+                                          "Beskrivning är obligatorisk.",
+                                      }
+                                    )}
+                                    className="flex w-[240px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
+                                  />
+                                </div>
+                                {errors.scaleDetails?.[index]?.description && (
+                                  <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                                    <p className="text-sm font-medium text-red-500 dark:text-red-900">
+                                      {
+                                        errors?.scaleDetails[index]?.description
+                                          ?.message
+                                      }
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+          <Accordion type="single" collapsible>
+            <AccordionItem value="category">
+              <AccordionTrigger>
+                <Label htmlFor="name" className="pr-4 mr-4 w-[140px]">
+                  Lägg till kategori
+                </Label>
+              </AccordionTrigger>
+              <AccordionContent>
+                <Card className="pt-6">
+                  <CardContent>
+                    <div className="flex flex-col justify-start items-start">
+                      <div className="flex flex-row justify-start items-center w-full">
+                        <Label className="pr-4 mr-4 w-[140px]">
+                          Lägg till Kategori
+                        </Label>
+
+                        <PlusCircledIcon
+                          className="ml-4"
+                          onClick={() =>
+                            appendCategoryField({
+                              id: uuidv4(),
+                              name: "",
+                              statements: [],
+                            })
+                          }
+                        />
+                      </div>
+                      <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                        {categoryFields.length === 0 && isSubmitted && (
+                          <p className="text-red-500 text-sm">
+                            Minst en kategori krävs
+                          </p>
+                        )}
+                      </div>
+                    </div>
+
+                    {categoryFields.map((category, cIndex) => (
+                      <div key={category.id} className="space-y-2 border p-2">
+                        <div className="flex flex-col justify-start items-start">
+                          <div className="flex flex-row justify-start items-center w-full">
+                            <Label className="py-2 w-[140px]">
+                              Kategori namn
+                            </Label>
+                            <input
+                              type="text"
+                              {...register(`categories.${cIndex}.name`, {
+                                required: "Kategori namn är obligatorisk",
+                              })}
+                              className="flex w-[240px] h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
+                            />
+                            <div className="flex justify-center items-center ml-4">
+                              <Label htmlFor="terms">Ta bort kategori</Label>
+                              <Trash
                                 className="h-4 w-4 ml-2"
-                                onClick={() => addStatement(category.id)}
+                                onClick={() => removeCategoryField(cIndex)}
                               />
                             </div>
-                            <h2 className="font-bold">{category.name}</h2>
-                            {category.statements.map((statement) => (
-                              <div
-                                key={statement.id}
-                                className="flex space-x-2 my-2"
-                              >
-                                <Textarea
-                                  value={statement.text}
-                                  onChange={(e) => {
-                                    updateStatementText(
-                                      category.id,
-                                      statement.id,
-                                      e.target.value
-                                    );
-                                  }}
-                                  placeholder="Statement"
-                                  className="flex w-full h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
+                          </div>
+                          {errors.categories?.[cIndex]?.name && (
+                            <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                              <p className="text-red-500 text-sm">
+                                {errors?.categories[cIndex]?.name?.message}
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                        {category.statements.map((statement, sIndex) => (
+                          <div
+                            key={statement.id}
+                            className="flex flex-col justify-start items-start"
+                          >
+                            <div className="flex flex-row justify-start items-center w-full">
+                              <Label className="py-2 w-[140px]">
+                                Påstående {sIndex + 1}
+                              </Label>
+                              <textarea
+                                {...register(
+                                  `categories.${cIndex}.statements.${sIndex}.text`,
+                                  { required: "Påstående är obligatorisk" }
+                                )}
+                                className="flex w-[240px] rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
+                              />
+                              <div className="flex justify-center items-center ml-4">
+                                <Label htmlFor="terms">Ta bort påstående</Label>
+                                <Trash
+                                  className="h-4 w-4 ml-2"
+                                  onClick={() =>
+                                    handleRemoveStatement(cIndex, sIndex)
+                                  }
                                 />
                               </div>
-                            ))}
+                            </div>
+
+                            {errors.categories?.[cIndex]?.statements?.[
+                              sIndex
+                            ] && (
+                              <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                                <p className="text-red-500 text-sm">
+                                  {
+                                    errors?.categories[cIndex]?.statements[
+                                      sIndex
+                                    ]?.text?.message
+                                  }
+                                </p>
+                              </div>
+                            )}
                           </div>
                         ))}
+                        <div className="flex justify-start items-start gap-x-6">
+                          <div className="flex justify-center items-center">
+                            <Label htmlFor="terms">Lägg till påstående</Label>
+                            <PlusCircledIcon
+                              className="h-4 w-4 ml-2"
+                              onClick={() => handleAddStatement(cIndex)}
+                            />
+                          </div>
+                        </div>
                       </div>
-                    </CardContent>
-                  </Card>
-                </AccordionContent>
-              </AccordionItem>
-            </Accordion>
+                    ))}
+                  </CardContent>
+                </Card>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
-            <CardFooter className="flex justify-end">
-              <Button
-                variant="link"
-                asChild
-                className="border-2 border-solid- border-slate-200 mr-2"
-              >
-                <a href="/">Avbryt</a>
-              </Button>
-              <Button type="submit">Skapa</Button>
-            </CardFooter>
-          </form>
-        </Form>
-      </CardContent>
+          <CardFooter className="flex justify-end">
+            <Button
+              variant="link"
+              asChild
+              className="border-2 border-solid- border-slate-200 mr-2"
+            >
+              <a href="/">Avbryt</a>
+            </Button>
+            <Button type="submit">Skapa</Button>
+          </CardFooter>
+        </div>
+      </form>
     </Card>
   );
 };

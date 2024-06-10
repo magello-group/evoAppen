@@ -39,7 +39,7 @@ export interface TemplateData {
   templateName: string;
   scoreScale: scoreScale;
   mandatoryMotivations: boolean;
-  nameIsAnonymous: NameIsAnonymous;
+  nameIsMandatory: "MANDATORY";
   categories: Category[];
   colorScale: Color;
 }

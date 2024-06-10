@@ -29,7 +29,7 @@ components:
         authorizedUsers:
           type: array
           items:
-            $ref: '#/components/schemas/CoWorker'
+            $ref: "#/components/schemas/CoWorker"
         description:
           type: string
     CoWorker:
@@ -66,13 +66,65 @@ components:
           type: string
     Template:
       type: object
+      required:
+        - templateName
+        - nameIsMandatory
+        - scoreScale
+        - mandatoryMotivations
+        - categories
+        - colorScale
       properties:
-        id:
-          type: string
-          description: The ID of the template
-        name:
+        templateName:
           type: string
           description: The name of the template
+        nameIsMandatory:
+          type: string
+          description: Whether the name is mandatory
+        scoreScale:
+          type: object
+          properties:
+            start:
+              type: number
+            end:
+              type: number
+            descriptions:
+              type: array
+              items:
+                type: object
+                properties:
+                  score:
+                    type: string
+                  title:
+                    type: string
+                  description:
+                    type: string
+        mandatoryMotivations:
+          type: boolean
+        categories:
+          type: array
+          items:
+            type: object
+            properties:
+              categoryName:
+                type: string
+              questions:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id:
+                      type: string
+                    text:
+                      type: string
+        colorScale:
+          type: object
+          properties:
+            colorName:
+              type: string
+            hexValues:
+              type: array
+              items:
+                type: string
   securitySchemes:
     bearerAuth:
       type: http
@@ -236,5 +288,31 @@ paths:
           description: Unauthorized
         "404":
           description: No rounds found
+        "500":
+          description: Server error
+  /newtemplate:
+    post:
+      summary: Creates a new feedback template
+      tags:
+        - NewFeedbackTemplate
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Template"
+      responses:
+        "201":
+          description: The feedback template was successfully created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Template"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
         "500":
           description: Server error

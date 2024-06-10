@@ -33,7 +33,8 @@ router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
     const doc = list.toObject();
     const tempDoc = template.toObject();
     let userName = "";
-    if (tempDoc.nameIsAnonymous !== NameIsAnonymous.NAMNGIVET) {
+    /* if (tempDoc.nameIsAnonymous !== NameIsAnonymous.NAMNGIVET) { */
+    if (tempDoc.nameIsMandatory !== "MANDATORY") {
       const rand1 = getRandomInt(attributes.length);
       const rand2 = getRandomInt(animals.length);
       userName = `${attributes[rand1]} ${animals[rand2]}`;
