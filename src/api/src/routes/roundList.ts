@@ -11,9 +11,14 @@ router.get("/", async (req: Request, res) => {
   try {
     const userId = (req as any).preferredUserId; // Assuming the user ID is stored in req.preferedUserUd
     // Query to find all rounds where authorizedUsersIds contains the userId
-    const list = await RoundListModel.find({ authorizedUsersIds: userId })
-      .orFail()
-      .exec();
+    const list = await RoundListModel.find({
+      authorizedUsersIds: { $in: [userId] },
+    }).exec();
+
+    if (!list || list.length === 0) {
+      return res.status(200).json([]); // Return empty array if no rounds found
+    }
+
     const roundsWithTemplateNames = await Promise.all(
       list.map(async (round) => {
         const template = await TemplateModel.findById(
@@ -41,6 +46,22 @@ router.get("/", async (req: Request, res) => {
       default:
         return res.status(500).send(); // Send a 500 status code for other errors
     }
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deletedRound = await RoundListModel.findByIdAndDelete(id);
+
+    if (!deletedRound) {
+      return res.status(404).json({ error: "Round not found" });
+    }
+
+    res.status(200).json({ message: "Round deleted successfully" });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal server error" });
   }
 });
 

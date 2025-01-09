@@ -5,11 +5,11 @@ export interface RoundData {
   answers: UserResponse[];
   templateData?: TemplateData;
   templateId: string;
-  authorizedUsers: User[];
+  authorizedUsers: User[]; // Ensure User is defined or imported
   authorizedUserIds: string[];
   userName?: string;
   mandatoryMotivations: boolean;
-  nameIsAnonymous: NameIsAnonymous;
+  nameIsMandatory: NameIsMandatory;
 }
 export interface User {
   userId: string;
@@ -26,11 +26,10 @@ export interface Answer {
     motivation: string;
   };
 }
-
-export enum NameIsAnonymous {
-  ANONYMT,
-  NAMNGIVET,
-  VALFRITT,
+export enum NameIsMandatory {
+  ANONYMT = "ANONYMT",
+  NAMNGIVET = "NAMNGIVET",
+  VALFRITT = "VALFRITT",
 }
 
 export interface TemplateData {

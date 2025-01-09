@@ -13,15 +13,15 @@ import "./App.css";
 import { EditRound } from "./pages/EditRound";
 import NewFeedbackRound from "./pages/NewFeedbackRound";
 import { InteractionStatus } from "@azure/msal-browser";
-import Home from "./pages/Home";
+import List from "./pages/List";
 import { ViewRound } from "./pages/ViewRound";
 import NewTemplate from "./pages/NewTemplate";
 
 const App: React.FC = () => {
-  console.log("V.1.2")
+  console.log("V.1.2");
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-0 lg:px-0 xl:px-0">
-      <div className="max-w-full md:max-w-[50rem]  mx-auto">
+      <div className="max-w-full md:max-w-[50rem] mx-auto">
         <Router>
           <Routes>
             <Route path="/round/edit/:name" element={<EditRound />} />
@@ -29,7 +29,7 @@ const App: React.FC = () => {
               path="/"
               element={
                 <ProtectedRouteWrapper>
-                  <Home />
+                  <List />
                 </ProtectedRouteWrapper>
               }
             />

@@ -28,7 +28,6 @@ export default function Feedbackrounds() {
       );
     },
   });
-  console.log(isLoading);
 
   if (isLoading)
     return (

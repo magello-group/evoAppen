@@ -48,7 +48,7 @@ router.post("/", async (req: Request, res) => {
       !roundBody.name ||
       !roundBody.template ||
       !roundBody.lastDate ||
-      !roundBody.nameIsAnonymous ||
+      !roundBody.nameIsMandatory ||
       !roundBody.authorizedUsers
     ) {
       return res.status(400).json({ error: "Missing required fields" });
@@ -74,7 +74,8 @@ router.post("/", async (req: Request, res) => {
       name: roundBody.name,
       templateId: roundBody.template,
       lastDate: roundBody.lastDate,
-      nameIsAnonymous: roundBody.nameIsAnonymous,
+      nameIsMandatory: roundBody.nameIsMandatory,
+      motivationsAreMandatory: roundBody.motivationsAreMandatory,
       authorizedUsers: authorizedUsers,
       authorizedUsersIds: userIdsArray,
       description: roundBody.description ?? "",
@@ -86,7 +87,6 @@ router.post("/", async (req: Request, res) => {
     const savedRound = await newRound.save();
 
     // Return the saved round
-    // res.status(201).json({});
     res.status(201).json(savedRound);
   } catch (err: any) {
     switch (err.constructor) {

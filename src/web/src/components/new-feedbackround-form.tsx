@@ -1,17 +1,17 @@
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
-import {
-  Card,
-  CardContent,
-  CardFooter,
-} from "@/shadcnComponents/ui/card";
+import { Card, CardContent, CardFooter } from "@/shadcnComponents/ui/card";
 
 import { Button } from "@/shadcnComponents/ui/button";
 import { useForm, Controller } from "react-hook-form";
 import { CalendarIcon, CaretSortIcon } from "@radix-ui/react-icons";
 import { ScrollArea } from "@/shadcnComponents/ui/scroll-area";
 import { useEffect, useState } from "react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/shadcnComponents/ui/popover";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/shadcnComponents/ui/popover";
 import { Textarea } from "@/shadcnComponents/ui/textarea";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import config from "@/config/config";
@@ -22,55 +22,51 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Skeleton } from "@/shadcnComponents/ui/skeleton";
 import { Checkbox } from "@/shadcnComponents/ui/checkbox";
 
-
-
 const FormComponent = () => {
   const { instance, accounts } = useMsal();
-  const { name } = useParams()
-
 
   // coworkers in own state
-  const { watch, register, handleSubmit, control, formState: { errors } } = useForm({
+  const {
+    watch,
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
-      name: '',
-      template: '',
+      name: "",
+      template: "",
       lastDate: null,
-      nameIsAnonymous: 'ANONYMT',
-      mandatoryMotivations: false
+      nameIsMandatory: "ANONYMT",
+      motivationsAreMandatory: false,
     },
-    mode: 'onSubmit', // Ensures validation runs on submit, not on component mount
+    mode: "onSubmit", // Ensures validation runs on submit, not on component mount
   });
   const [selectedCoWorkers, setSelectedCoWorkers] = useState<string[]>([]);
-  const [open, setOpen] = useState(false)
-  const identification = watch("nameIsAnonymous");
-  const [messageState, setMessageState] = useState("")
-  const [mandatoryMotivations, setMandatoryMotivations] = useState(false)
+  const [open, setOpen] = useState(false);
+  const identification = watch("nameIsMandatory");
+  const [messageState, setMessageState] = useState("");
+  const [motivationsAreMandatory, setMotivationsAreMandatory] = useState(false);
 
   useEffect(() => {
     function newText() {
-
       switch (identification) {
         case "ANONYMT":
           return "Dina svar kommer bli anonyma.";
-
         case "NAMNGIVET":
           return "Dina svar kommer bli publika.";
-
         case "VALFRITT":
           return "Dina svar kommer bli publika.";
-
         default:
           return "";
       }
     }
-    setMessageState(newText())
-  }, [identification])
-
-
+    setMessageState(newText());
+  }, [identification]);
 
   // Fetch data using useQuery
   const { data, isLoading } = useQuery({
-    queryKey: ['newOrEditRound'],
+    queryKey: ["newOrEditRound"],
     queryFn: async () => {
       const temp = await instance.acquireTokenSilent({
         ...loginRequest,
@@ -87,8 +83,12 @@ const FormComponent = () => {
       };
 
       const [coWorkerList, templateList] = await Promise.all([
-        fetch(`${config.api.baseUrl}/newfeedbackround/coworkers`, options).then((res) => res.json()),
-        fetch(`${config.api.baseUrl}/newfeedbackround/templates`, options).then((res) => res.json()),
+        fetch(`${config.api.baseUrl}/newfeedbackround/coworkers`, options).then(
+          (res) => res.json()
+        ),
+        fetch(`${config.api.baseUrl}/newfeedbackround/templates`, options).then(
+          (res) => res.json()
+        ),
       ]);
 
       return { coWorkerList, templateList };
@@ -107,15 +107,15 @@ const FormComponent = () => {
       const bearer = "Bearer " + temp.accessToken;
       headers.append("Authorization", bearer);
       headers.append("Content-Type", "application/json");
-
+      console.log(newData);
       const response = await fetch(`${config.api.baseUrl}/newfeedbackround/`, {
-        method: 'POST',
+        method: "POST",
         headers: headers,
         body: JSON.stringify(newData),
       });
 
       if (!response.ok) {
-        throw new Error('Network response was not ok');
+        throw new Error("Network response was not ok");
       }
       return response.json();
     },
@@ -124,26 +124,33 @@ const FormComponent = () => {
   const { mutate, isPending, error: mutationError } = mutation;
   const navigate = useNavigate();
 
-
   const onSubmit = (inData) => {
-    console.log(inData)
-    // React form handle validation
-    const coWorkersObjectArray = selectedCoWorkers.map((elem: string) => data?.coWorkerList?.find((user: User) => user.userName === elem))
-    mutate({ ...inData, authorizedUsers: coWorkersObjectArray, description: messageState, mandatoryMotivations: mandatoryMotivations }, {
-      onSuccess() {
-        navigate('/');
+    const coWorkersObjectArray = selectedCoWorkers.map((elem: string) =>
+      data?.coWorkerList?.find((user: User) => user.userName === elem)
+    );
+    mutate(
+      {
+        ...inData,
+        authorizedUsers: coWorkersObjectArray,
+        description: messageState,
+        motivationsAreMandatory: motivationsAreMandatory,
       },
-    })
-
+      {
+        onSuccess() {
+          navigate("/");
+        },
+      }
+    );
   };
 
   const toggleOption = (e) => {
     const value = e.target.value;
     setSelectedCoWorkers((prev) =>
-      prev.includes(value) ? prev.filter((item) => item !== value) : [...prev, value]
+      prev.includes(value)
+        ? prev.filter((item) => item !== value)
+        : [...prev, value]
     );
   };
-
 
   if (isLoading)
     return (
@@ -155,9 +162,9 @@ const FormComponent = () => {
           <Skeleton className="h-10  w-3/4" />
           <Skeleton className="h-10  w-3/4" />
           <Skeleton className="h-10  w-3/4" />
-
         </div>
-      </Card>)
+      </Card>
+    );
 
   return (
     <Card className="w-full p-10">
@@ -205,7 +212,7 @@ const FormComponent = () => {
                       <option value="" disabled>
                         Välj en mall
                       </option>
-                      {data?.templateList?.map(elem => (
+                      {data?.templateList?.map((elem) => (
                         <option
                           key={elem.id}
                           value={elem.id}
@@ -233,7 +240,10 @@ const FormComponent = () => {
 
                 <div className="flex flex-col justify-center w-1/2">
                   <div
-                    className={`flex justify-start  flex-wrap text-[12px] pb-2 ${selectedCoWorkers.length > 0 ? 'border-gray-300' : ''}`}>
+                    className={`flex justify-start  flex-wrap text-[12px] pb-2 ${
+                      selectedCoWorkers.length > 0 ? "border-gray-300" : ""
+                    }`}
+                  >
                     {selectedCoWorkers.map((option) => (
                       <span
                         key={option}
@@ -242,7 +252,9 @@ const FormComponent = () => {
                         {option}
                         <button
                           className="ml-1 text-sm"
-                          onClick={() => toggleOption({ target: { value: option } })}
+                          onClick={() =>
+                            toggleOption({ target: { value: option } })
+                          }
                         >
                           &times;
                         </button>
@@ -257,13 +269,13 @@ const FormComponent = () => {
                         variant={"outline"}
                       >
                         Välj kollega
-                        <span >
+                        <span>
                           <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </span>
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0">
-                      <ScrollArea className="max-h-96" >
+                      <ScrollArea className="max-h-96">
                         {data?.coWorkerList?.map((coworker: User) => (
                           <label
                             key={coworker.userName}
@@ -272,7 +284,9 @@ const FormComponent = () => {
                             <input
                               type="checkbox"
                               value={coworker.userName}
-                              checked={selectedCoWorkers.includes(coworker.userName)}
+                              checked={selectedCoWorkers.includes(
+                                coworker.userName
+                              )}
                               onChange={toggleOption}
                               className="mr-2 leading-tight"
                             />
@@ -283,7 +297,6 @@ const FormComponent = () => {
                     </PopoverContent>
                   </Popover>
                 </div>
-
               </div>
               <div className="flex flex-row justify-start w-[300px] h-10">
                 <p className="text-sm font-medium text-red-500 dark:text-red-900"></p>
@@ -297,35 +310,41 @@ const FormComponent = () => {
                   <div className="flex items-center space-x-3 space-y-0">
                     <input
                       className="aspect-square h-4 w-4 rounded-full border border-slate-900 text-slate-900 ring-offset-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
-                      {...register("nameIsAnonymous")}
+                      {...register("nameIsMandatory")}
                       type="radio"
                       value="ANONYMT"
                       id="ANONYMT"
                     />
-                    <label htmlFor="ANONYMT" className="font-normal">Anonymt</label>
+                    <label htmlFor="ANONYMT" className="font-normal">
+                      Anonymt
+                    </label>
                   </div>
 
                   <div className="flex items-center space-x-3 space-y-0">
                     <input
                       className="aspect-square h-4 w-4 rounded-full border border-slate-900 text-slate-900 ring-offset-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
-                      {...register("nameIsAnonymous")}
+                      {...register("nameIsMandatory")}
                       type="radio"
                       value="NAMNGIVET"
                       id="NAMNGIVET"
                     />
-                    <label htmlFor="NAMNGIVET" className="font-normal">Kräv namn</label>
+                    <label htmlFor="NAMNGIVET" className="font-normal">
+                      Kräv namn
+                    </label>
                   </div>
 
                   <div className="flex items-center space-x-3 space-y-0">
                     <input
                       className="aspect-square h-4 w-4 rounded-full border border-slate-900 text-slate-900 ring-offset-white focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:text-slate-50 dark:ring-offset-slate-950 dark:focus-visible:ring-slate-300"
-                      {...register("nameIsAnonymous")}
+                      {...register("nameIsMandatory")}
                       type="radio"
                       value="VALFRITT"
                       id="VALFRITT"
                     />
 
-                    <label htmlFor="VALFRITT" className="font-normal">Valfritt</label>
+                    <label htmlFor="VALFRITT" className="font-normal">
+                      Valfritt
+                    </label>
                   </div>
                 </div>
               </div>
@@ -338,7 +357,9 @@ const FormComponent = () => {
                 </label>
                 <Textarea
                   value={messageState}
-                  onChange={(e) => { setMessageState(e.target.value) }}
+                  onChange={(e) => {
+                    setMessageState(e.target.value);
+                  }}
                   placeholder="Meddelande"
                   className="flex w-1/2 h-10 rounded-md border border-slate-200 bg-white px-3 py-2 text-sm ring-offset-white file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-slate-500 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-950 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:border-slate-800 dark:bg-slate-950 dark:ring-offset-slate-950 dark:placeholder:text-slate-400 dark:focus-visible:ring-slate-300"
                 />
@@ -387,12 +408,12 @@ const FormComponent = () => {
                   Motiveringar är obligatoriska
                 </label>
                 <Checkbox
-                  checked={mandatoryMotivations}
-                  onCheckedChange={(value) => setMandatoryMotivations(!!value)}
+                  checked={motivationsAreMandatory}
+                  onCheckedChange={(value) =>
+                    setMotivationsAreMandatory(!!value)
+                  }
                 />
-
               </div>
-
             </div>
           </div>
         </form>
@@ -409,10 +430,8 @@ const FormComponent = () => {
           {isPending ? "Skapar..." : "Skapa"}
         </Button>
       </CardFooter>
-    </Card >
+    </Card>
   );
 };
 
 export default FormComponent;
-
-

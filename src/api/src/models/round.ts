@@ -10,6 +10,7 @@ export interface RoundData {
   authorizedUsers: User[];
   authorizedUsersIds: string[];
   lastDate: Date;
+  nameIsMandatory: NameIsMandatory;
 }
 
 export interface User {
@@ -29,17 +30,15 @@ export interface Answer {
   };
 }
 
-export enum NameIsAnonymous {
-  ANONYMT,
-  NAMNGIVET,
-  VALFRITT,
+export enum NameIsMandatory {
+  ANONYMT = "ANONYMT",
+  NAMNGIVET = "NAMNGIVET",
+  VALFRITT = "VALFRITT",
 }
 export interface TemplateData {
   _id: string;
   templateName: string;
   scoreScale: scoreScale;
-  mandatoryMotivations: boolean;
-  nameIsMandatory: "MANDATORY";
   categories: Category[];
   colorScale: Color;
 }
@@ -79,7 +78,7 @@ const RoundListSchema = new Schema(
   {
     templateId: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "templates", // This should match the name you used when creating the TemplateModel
+      ref: "templates",
     },
     name: {
       type: String,
@@ -104,6 +103,14 @@ const RoundListSchema = new Schema(
     authorizedUsersIds: [String],
     answers: [AnswerSchema],
     lastDate: Date,
+    motivationsAreMandatory: {
+      required: true,
+      type: Boolean,
+    },
+    nameIsMandatory: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: {

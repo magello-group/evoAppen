@@ -13,7 +13,7 @@ components:
         - name
         - template
         - lastDate
-        - nameIsAnonymous
+        - nameIsMandatory
         - authorizedUsers
         - description
       properties:
@@ -24,7 +24,7 @@ components:
         lastDate:
           type: string
           format: date-time
-        nameIsAnonymous:
+        NameIsMandatory:
           type: string
         authorizedUsers:
           type: array

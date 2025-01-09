@@ -189,7 +189,10 @@ const NewTemplateForm: React.FC = () => {
   const onSubmit = async (data: FormValues) => {
     if (validateForm(data)) {
       try {
-        await mutate(data, {
+        const submissionData = {
+          ...data,
+        };
+        await mutate(submissionData, {
           onSuccess: () => {
             navigate("/");
           },
@@ -199,6 +202,7 @@ const NewTemplateForm: React.FC = () => {
       }
     }
   };
+
   return (
     <Card className="w-11/12 border-none">
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">

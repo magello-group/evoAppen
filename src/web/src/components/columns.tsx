@@ -6,6 +6,7 @@ import {
   Pencil,
   UserRound,
   Settings,
+  Trash,
 } from "lucide-react";
 import { Button } from "@/shadcnComponents/ui/button";
 import {
@@ -20,17 +21,25 @@ import { Checkbox } from "@/shadcnComponents/ui/checkbox";
 import { Link } from "react-router-dom";
 import { TokensIcon } from "@radix-ui/react-icons";
 
-
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/shadcnComponents/ui/dialog"
+} from "@/shadcnComponents/ui/dialog";
 import { useState } from "react";
-import { QRCodeSVG } from 'qrcode.react';
+import { QRCodeSVG } from "qrcode.react";
+import { useMutation } from "@tanstack/react-query";
+import { useMsal } from "@azure/msal-react";
+import { loginRequest } from "../misc/authConfig";
+import config from "../config/config";
 
+const DIALOG_STATES = {
+  CLOSED: "CLOSED",
+  QR: "QR",
+  DELETE: "DELETE",
+};
 
 export const columns: ColumnDef<dateInterFace>[] = [
   {
@@ -111,8 +120,64 @@ export const columns: ColumnDef<dateInterFace>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const [isDialogOpen, setIsDialogOpen] = useState(false);
+      const [dialogState, setDialogState] = useState(DIALOG_STATES.CLOSED);
+
+      // Function to close the dialog
+      const closeDialog = () => {
+        setDialogState(DIALOG_STATES.CLOSED);
+      };
+
+      const { instance, accounts } = useMsal();
+      const handleErrorResponse = async (response: Response) => {
+        const contentType = response.headers.get("content-type");
+        if (contentType && contentType.includes("application/json")) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || "An error occurred");
+        } else {
+          const text = await response.text();
+          throw new Error(`Unexpected response: ${text}`);
+        }
+      };
+
+      const deleteRoundMutation = useMutation({
+        mutationFn: async (roundId: string) => {
+          const temp = await instance.acquireTokenSilent({
+            ...loginRequest,
+            account: accounts[0],
+          });
+
+          const headers = new Headers();
+          const bearer = "Bearer " + temp.accessToken;
+          headers.append("Authorization", bearer);
+          headers.append("Content-Type", "application/json");
+          console.log(`${config.api.baseUrl}/round/${roundId}`);
+          const response = await fetch(
+            `${config.api.baseUrl}/rounds/${roundId}`,
+            {
+              method: "DELETE",
+              headers: headers,
+            }
+          );
+
+          if (!response.ok) {
+            await handleErrorResponse(response);
+          }
+          return response.json();
+        },
+      });
+
+      const confirmDelete = async () => {
+        console.log();
+
+        try {
+          await deleteRoundMutation.mutateAsync(row.original._id);
+          setDialogState(DIALOG_STATES.CLOSED);
+          window.location.reload();
+        } catch (error) {
+          console.error("Error removing round:", error);
+        }
+      };
+
       return (
         <>
           <DropdownMenu>
@@ -122,7 +187,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent >
+            <DropdownMenuContent>
               <DropdownMenuLabel>{row.getValue("name")}</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem>
@@ -132,9 +197,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
               <DropdownMenuItem>
                 <Settings className="mr-3 size-4" />
                 <Link to={`/newfeedbackround/edit/${row.getValue("name")}`}>
-                  <span className="no-underline hover:underline">
-                    Ändra
-                  </span>
+                  <span className="no-underline hover:underline">Ändra</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
@@ -144,29 +207,63 @@ export const columns: ColumnDef<dateInterFace>[] = [
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <div className="flex" onClick={() => { setIsDialogOpen(!isDialogOpen) }}>
+                <div
+                  className="flex"
+                  onClick={() => {
+                    setDialogState(DIALOG_STATES.QR);
+                  }}
+                >
                   <TokensIcon className="mr-3 size-4" />
-                  <span>
-                    QR-kod
-                  </span>
+                  <span>QR-kod</span>
                 </div>
+              </DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => setDialogState(DIALOG_STATES.DELETE)}
+              >
+                <Trash className="mr-3 size-4 text-red-600" />
+                <span className="no-underline text-red-600">Ta bort</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogContent>
-              <DialogHeader className="items-center">
-                <DialogTitle>QR-kod</DialogTitle>
-                <DialogDescription>
-                  <QRCodeSVG size={400} value={`${window.location.href}round/edit/${row.original.editId}`} />
-                </DialogDescription>
-              </DialogHeader>
-              {/* Add QR code content here */}
-            </DialogContent>
-          </Dialog >
+          {dialogState === DIALOG_STATES.QR && (
+            <Dialog
+              open={dialogState === DIALOG_STATES.QR}
+              onOpenChange={closeDialog}
+            >
+              <DialogContent>
+                <DialogHeader className="items-center">
+                  <DialogTitle>QR-kod</DialogTitle>
+                  <DialogDescription>
+                    <QRCodeSVG
+                      size={400}
+                      value={`${window.location.href}round/edit/${row.original.editId}`}
+                    />
+                  </DialogDescription>
+                </DialogHeader>
+              </DialogContent>
+            </Dialog>
+          )}
+          {dialogState === DIALOG_STATES.DELETE && (
+            <Dialog
+              open={dialogState === DIALOG_STATES.DELETE}
+              onOpenChange={closeDialog}
+            >
+              <DialogContent>
+                <DialogHeader className="items-center">
+                  <DialogTitle>Bekräfta borttagning</DialogTitle>
+                  <DialogDescription>
+                    Är du säker på att du vill ta bort{" "}
+                    <i>{row.getValue("name")}</i>
+                  </DialogDescription>
+                </DialogHeader>
+                <Button variant={"destructive"} onClick={confirmDelete}>
+                  Ta bort
+                </Button>
+              </DialogContent>
+            </Dialog>
+          )}
         </>
       );
     },
   },
 ];
-

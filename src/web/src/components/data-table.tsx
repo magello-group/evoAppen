@@ -66,13 +66,13 @@ export function DataTable<TData, TValue>({
   });
 
   return (
-    <div className="flex flex-col justify-start items-start">
-      <div >
+    <div className="flex flex-col justify-start items-start  w-full">
+      <div>
         <p className="text-slate-500">
           Välj en befintlig feedbackomgång eller skapa en ny
         </p>
       </div>
-      <div className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border">
+      <div className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border  w-full">
         <div className="theme-zinc w-full">
           <div className="preview flex  w-full justify-center  p-6 md:p-10 items-center">
             <div className="w-full">
@@ -123,9 +123,9 @@ export function DataTable<TData, TValue>({
                               {header.isPlaceholder
                                 ? null
                                 : flexRender(
-                                  header.column.columnDef.header,
-                                  header.getContext()
-                                )}
+                                    header.column.columnDef.header,
+                                    header.getContext()
+                                  )}
                             </TableHead>
                           );
                         })}
@@ -162,30 +162,33 @@ export function DataTable<TData, TValue>({
                   </TableBody>
                 </Table>
               </div>
-              {/* <div className="flex items-center justify-end space-x-2 py-4">
-                <div className="flex-1 text-sm text-muted-foreground">
-                  Sida {table.firstPage.length + 1} av{" "}
-                  {table.getPageCount.length + 1}
+              {table.getRowModel().rows?.length > 0 && (
+                <div className="flex items-center justify-end space-x-2 pt-4">
+                  <div className="flex-1 text-sm text-muted-foreground">
+                    Sida {table.getState().pagination.pageIndex + 1} av{" "}
+                    {table.getPageCount()}
+                  </div>
+
+                  <div className="space-x-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.previousPage()}
+                      disabled={!table.getCanPreviousPage()}
+                    >
+                      Föregående
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => table.nextPage()}
+                      disabled={!table.getCanNextPage()}
+                    >
+                      Nästa
+                    </Button>
+                  </div>
                 </div>
-                <div className="space-x-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.previousPage()}
-                    disabled={!table.getCanPreviousPage()}
-                  >
-                    Föregående
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => table.nextPage()}
-                    disabled={!table.getCanNextPage()}
-                  >
-                    Nästa
-                  </Button>
-                </div>
-              </div> */}
+              )}
             </div>
           </div>
         </div>

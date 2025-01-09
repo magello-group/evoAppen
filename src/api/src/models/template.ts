@@ -1,17 +1,9 @@
 import mongoose from "mongoose";
 
-export enum NameIsAnonymous {
-  ANONYMT,
-  NAMNGIVET,
-  VALFRITT,
-}
-
 export interface TemplateData {
   _id: string;
   templateName: string;
   scoreScale: scoreScale;
-  mandatoryMotivations: boolean;
-  nameIsMandatory: "MANDATORY";
   categories: Category[];
   colorScale: Color;
 }
@@ -44,49 +36,44 @@ export interface Question {
 const scoreDescriptionSchema = new mongoose.Schema({
   score: { type: String, required: true },
   title: { type: String, required: true },
-  description: { type: String, required: true }
+  description: { type: String, required: true },
 });
 
 // Define the schema for ScoreScale
 const scoreScaleSchema = new mongoose.Schema({
   start: { type: Number, required: true },
   end: { type: Number, required: true },
-  descriptions: [scoreDescriptionSchema]
+  descriptions: [scoreDescriptionSchema],
 });
 
 // Define the schema for Question
 const questionSchema = new mongoose.Schema({
   id: { type: String, required: true },
-  text: { type: String, required: true }
+  text: { type: String, required: true },
 });
 
 // Define the schema for Category
 const categorySchema = new mongoose.Schema({
   categoryName: { type: String, required: true },
-  questions: [questionSchema]
+  questions: [questionSchema],
 });
 
 // Define the schema for ColorScale
 const colorScaleSchema = new mongoose.Schema({
   colorName: { type: String, required: true },
-  hexValues: { type: [String], required: true }
+  hexValues: { type: [String], required: true },
 });
 
 // Define the schema for NewTemplateModel
 const NewTemplateSchema = new mongoose.Schema({
   templateName: { type: String, required: true },
-  nameIsMandatory: { type: String, required: true },
   scoreScale: scoreScaleSchema,
-  mandatoryMotivations: { type: Boolean, required: true },
   categories: [categorySchema],
-  colorScale: colorScaleSchema
+  colorScale: colorScaleSchema,
 });
-
 
 export const TemplateModel = mongoose.model<TemplateData>(
   "templates",
   NewTemplateSchema,
   "templates"
 );
-
-
