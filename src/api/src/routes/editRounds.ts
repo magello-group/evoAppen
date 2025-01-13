@@ -38,8 +38,11 @@ router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
       userName = `${attributes[rand1]} ${animals[rand2]}`;
     }
 
-    const { _id, answers, ...rest } = doc; // Exclude only _id from the document
-    res.json({ ...rest, userName, templateData: template }); // Send the response without answers
+    const { ...rest } = doc;
+    delete (rest as any)._id;
+    delete (rest as any).answers;
+
+    res.json({ ...rest, userName, templateData: template }); // Send the response without answers and id
   } catch (err: any) {
     switch (err.constructor) {
       case mongoose.Error.CastError:

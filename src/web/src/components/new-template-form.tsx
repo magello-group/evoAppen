@@ -1,4 +1,3 @@
-"use client";
 import React, { useEffect } from "react";
 import { useForm, useFieldArray } from "react-hook-form";
 import { v4 as uuidv4 } from "uuid";
