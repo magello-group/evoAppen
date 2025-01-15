@@ -17,7 +17,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/shadcnComponents/ui/dropdown-menu";
-import { Checkbox } from "@/shadcnComponents/ui/checkbox";
+
 import { Link } from "react-router-dom";
 import { TokensIcon } from "@radix-ui/react-icons";
 
@@ -34,6 +34,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useMsal } from "@azure/msal-react";
 import { loginRequest } from "../misc/authConfig";
 import config from "../config/config";
+import { Input } from "@/shadcnComponents/ui/input";
 
 const DIALOG_STATES = {
   CLOSED: "CLOSED",
@@ -41,29 +42,31 @@ const DIALOG_STATES = {
   DELETE: "DELETE",
 };
 
-export const columns: ColumnDef<dateInterFace>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+export const RoundsColumns: ColumnDef<dateInterFace>[] = [
+
+  // Kanske sen om man ska kunna jämföra/lägga in
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "name",
     header: () => <div className="text-left">Namn</div>,
@@ -120,6 +123,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const [dialogState, setDialogState] = useState(DIALOG_STATES.CLOSED);
 
       // Function to close the dialog
@@ -127,6 +131,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
         setDialogState(DIALOG_STATES.CLOSED);
       };
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const { instance, accounts } = useMsal();
       const handleErrorResponse = async (response: Response) => {
         const contentType = response.headers.get("content-type");
@@ -139,6 +144,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
         }
       };
 
+      // eslint-disable-next-line react-hooks/rules-of-hooks
       const deleteRoundMutation = useMutation({
         mutationFn: async (roundId: string) => {
           const temp = await instance.acquireTokenSilent({
@@ -167,7 +173,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
       });
 
       const confirmDelete = async () => {
-        console.log();
+
 
         try {
           await deleteRoundMutation.mutateAsync(row.original._id);
@@ -183,7 +189,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
+                <span className="sr-only">öppna meny</span>
                 <MoreHorizontal className="h-4 w-4" />
               </Button>
             </DropdownMenuTrigger>
@@ -214,7 +220,7 @@ export const columns: ColumnDef<dateInterFace>[] = [
                   }}
                 >
                   <TokensIcon className="mr-3 size-4" />
-                  <span>QR-kod</span>
+                  <span>Dela Länk / QR-kod</span>
                 </div>
               </DropdownMenuItem>
               <DropdownMenuItem
@@ -232,7 +238,9 @@ export const columns: ColumnDef<dateInterFace>[] = [
             >
               <DialogContent>
                 <DialogHeader className="items-center">
-                  <DialogTitle>QR-kod</DialogTitle>
+                  <DialogTitle>Dela länk</DialogTitle>
+                  <Input id="link" value={`${window.location.href}round/edit/${row.original.editId}`}
+                  />
                   <DialogDescription>
                     <QRCodeSVG
                       size={400}

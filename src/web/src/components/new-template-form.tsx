@@ -169,6 +169,7 @@ const NewTemplateForm: React.FC = () => {
       headers.append("Authorization", bearer);
       headers.append("Content-Type", "application/json");
 
+
       const response = await fetch(`${config.api.baseUrl}/newtemplate/`, {
         method: "POST",
         headers: headers,
@@ -191,12 +192,16 @@ const NewTemplateForm: React.FC = () => {
         const submissionData = {
           ...data,
         };
+        setIsLoading(true)
         await mutate(submissionData, {
           onSuccess: () => {
+            setIsLoading(false)
             navigate("/");
           },
         });
       } catch (error) {
+        setIsLoading(false)
+
         console.error("Error submitting the form:", error);
       }
     }
@@ -280,9 +285,8 @@ const NewTemplateForm: React.FC = () => {
                                   </Label>
                                 </div>
                                 <div>
-                                  <Label className="font-medium w-[200px]">{`${
-                                    index + 1
-                                  }p`}</Label>
+                                  <Label className="font-medium w-[200px]">{`${index + 1
+                                    }p`}</Label>
                                 </div>
                               </div>
                               <div className="flex flex-col justify-between">
@@ -446,16 +450,16 @@ const NewTemplateForm: React.FC = () => {
                             {errors.categories?.[cIndex]?.statements?.[
                               sIndex
                             ] && (
-                              <div className="flex flex-row justify-start items-center w-[300px] h-10">
-                                <p className="text-red-500 text-sm">
-                                  {
-                                    errors?.categories[cIndex]?.statements[
-                                      sIndex
-                                    ]?.text?.message
-                                  }
-                                </p>
-                              </div>
-                            )}
+                                <div className="flex flex-row justify-start items-center w-[300px] h-10">
+                                  <p className="text-red-500 text-sm">
+                                    {
+                                      errors?.categories[cIndex]?.statements[
+                                        sIndex
+                                      ]?.text?.message
+                                    }
+                                  </p>
+                                </div>
+                              )}
                           </div>
                         ))}
                         <div className="flex justify-start items-start gap-x-6">

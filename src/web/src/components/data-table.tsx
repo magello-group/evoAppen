@@ -19,27 +19,25 @@ import {
   TableHeader,
   TableRow,
 } from "@/shadcnComponents/ui/table";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-  DropdownMenuItem,
-} from "@/shadcnComponents/ui/dropdown-menu";
+
 import { Button } from "@/shadcnComponents/ui/button";
 import React from "react";
 import { Input } from "@/shadcnComponents/ui/input";
-import { FilePlusIcon, PlusIcon } from "@radix-ui/react-icons";
+import { FilePlusIcon } from "@radix-ui/react-icons";
+import { Link } from "react-router-dom";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isRounds: boolean,
 }
-
-export function DataTable<TData, TValue>({
+/**
+ * Gör denne generic till både templates och rounds 
+ */
+export function DataTable<TData, TValue,>({
   columns,
   data,
+  isRounds = true,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -67,50 +65,30 @@ export function DataTable<TData, TValue>({
 
   return (
     <div className="flex flex-col justify-start items-start  w-full">
-      <div>
-        <p className="text-slate-500">
-          Välj en befintlig feedbackomgång eller skapa en ny
-        </p>
-      </div>
       <div className="mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 relative rounded-md border  w-full">
         <div className="theme-zinc w-full">
-          <div className="preview flex  w-full justify-center  p-6 md:p-10 items-center">
+          <div className="preview flex  w-full justify-center p-6 md:p-10 items-center">
             <div className="w-full">
-              <div className="flex items-center py-4">
+              <div className="flex items-center justify-between py-4">
                 <Input
-                  placeholder="Filtrera omgångar"
+                  placeholder="Filtrera svarsomgång"
                   value={
-                    (table.getColumn("name")?.getFilterValue() as string) ?? ""
+                    (table.getColumn(isRounds ? "name" : "templateName")?.getFilterValue() as string) ?? ""
                   }
                   onChange={(event) =>
-                    table.getColumn("name")?.setFilterValue(event.target.value)
+                    table.getColumn(isRounds ? "name" : "templateName")?.setFilterValue(event.target.value)
                   }
                   className="max-w-sm"
                 />
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="ml-auto">
-                      Skapa ny <FilePlusIcon className="ml-1" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>Skapa ny</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <PlusIcon className="mr-1" />
-                      <Button variant="link" asChild>
-                        <a href="/newfeedbackround">Ny omgång</a>
-                      </Button>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem>
-                      <PlusIcon className="mr-1" />
-                      <Button variant="link" asChild>
-                        <a href="/newtemplate">Ny mall</a>
-                      </Button>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+
+                <Link to={isRounds ? `/newfeedbackround` : `/newtemplate`}>
+                  <Button
+                    variant={"outline"}
+                    className="no-underline hover:underline"
+                  >
+                    {isRounds ? `Skapa svarsomgång` : `Skapa mall`}<FilePlusIcon className="ml-1" />
+                  </Button>
+                </Link>
               </div>
               <div className="rounded-md border">
                 <Table className="table-auto">
@@ -123,9 +101,9 @@ export function DataTable<TData, TValue>({
                               {header.isPlaceholder
                                 ? null
                                 : flexRender(
-                                    header.column.columnDef.header,
-                                    header.getContext()
-                                  )}
+                                  header.column.columnDef.header,
+                                  header.getContext()
+                                )}
                             </TableHead>
                           );
                         })}

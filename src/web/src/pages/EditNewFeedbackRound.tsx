@@ -4,7 +4,7 @@ import { Header } from "../components/Header";
 export default function NewFeedbackRound() {
   return (
     <main className="flex flex-col justify-center items-between">
-      <Header title="Ny feedbackomgång" titleSize="l" description="" />
+      <Header title="Ny svarsrunda" titleSize="l" description="" />
       <EditNewFeedbackRoundForm />
     </main>
   );

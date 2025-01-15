@@ -45,13 +45,7 @@ const NewFeedbackRoundForm = () => {
   const chosenRound = sampleData.filter((round) => round.name === paramName);
   const { coworker, lastresponsedate, name, template } = chosenRound[0];
 
-  const onSubmit = async (data: FormValues) => {
-    try {
-      console.log(data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+
 
   const handleDropdownClick = () => {
     setIsOpen(!isOpen);
@@ -84,7 +78,7 @@ const NewFeedbackRoundForm = () => {
   return (
     <Card className="w-11/12">
       <CardHeader>
-        <CardTitle>Du skapar nu en ny feedbackomgång</CardTitle>
+        <CardTitle>Du skapar nu en ny svarsrunda</CardTitle>
       </CardHeader>
       <CardContent>
         <form id="nyfeedbackform" onSubmit={handleSubmit(onSubmit)}>
@@ -157,11 +151,10 @@ const NewFeedbackRoundForm = () => {
                 render={() => (
                   <div className="flex flex-col justify-center items-center w-[240px]">
                     <div
-                      className={`flex justify-start items-center flex-wrap w-[240px] text-[12px] ${
-                        coworkers.length > 0
-                          ? "border-gray-300 rounded-md shadow-md"
-                          : ""
-                      }`}
+                      className={`flex justify-start items-center flex-wrap w-[240px] text-[12px] ${coworkers.length > 0
+                        ? "border-gray-300 rounded-md shadow-md"
+                        : ""
+                        }`}
                     >
                       {coworkers.map((option) => (
                         <span

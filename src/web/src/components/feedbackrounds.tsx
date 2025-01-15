@@ -1,4 +1,4 @@
-import { columns } from "./columns";
+import { RoundsColumns } from "./RoundsColumns";
 import { DataTable } from "./data-table";
 import { useMsal } from "@azure/msal-react";
 import { useQuery } from "@tanstack/react-query";
@@ -31,11 +31,18 @@ export default function Feedbackrounds() {
 
   if (isLoading)
     return (
-      <div className="flex flex-col space-y-4 w-full pr-8  relative">
+      <div className="flex flex-col space-y-4 w-full pr-8 ">
         <Skeleton className="h-6 w-full min-w-full" />
         <Skeleton className="h-[25rem] w-full min-w-full" />
       </div>
     );
 
-  return <DataTable columns={columns} data={data} />;
+  return <>
+    <div>
+      <p className="text-slate-500">
+        Visar svarsomgångar du har skapat eller har access till
+      </p>
+    </div>
+    <DataTable columns={RoundsColumns} data={data} isRounds={true} />;
+  </>
 }

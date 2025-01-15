@@ -5,3 +5,4 @@ src/api/.env
 .azure.zip
 .DS_Store
 src/web/.envis.local
+.DS_Store

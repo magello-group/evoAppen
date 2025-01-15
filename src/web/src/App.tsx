@@ -18,7 +18,7 @@ import { ViewRound } from "./pages/ViewRound";
 import NewTemplate from "./pages/NewTemplate";
 
 const App: React.FC = () => {
-  console.log("V.1.2");
+
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-0 lg:px-0 xl:px-0">
       <div className="max-w-full md:max-w-[50rem] mx-auto">

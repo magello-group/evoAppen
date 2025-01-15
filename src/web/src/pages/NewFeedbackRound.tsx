@@ -1,5 +1,5 @@
 import { Header } from "@/components/Header";
-import NewFeedbackRoundForm from "@/components/New-feedbackround-form";
+import NewFeedbackRoundForm from "@/components/NewFeedbackRoundForm"
 
 
 export default function NewFeedbackRound() {

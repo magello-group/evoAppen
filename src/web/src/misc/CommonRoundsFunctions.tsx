@@ -53,7 +53,7 @@ export const transposeToChartDataforView = (
   const allQuestions: Question[] = categories.flatMap(
     (category) => category.questions
   );
-  console.log(answers, categories);
+
   answers?.forEach((answer) => {
     Object.entries(answer.answers).forEach(([questionId, ans]) => {
       const question = allQuestions.find((q) => q.id === questionId);

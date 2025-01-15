@@ -153,9 +153,8 @@ export const ViewRound = () => {
         {isSmallDevice || !dropDownSettings.sideBySide ? (
           <>
             <Card
-              className={`rounded-lg border min-h-[20rem] max-h-[25rem] w-auto h-10 ${
-                dropDownSettings.chartIsSticky && "sticky"
-              } top-0 !overflow-visible bg-white dark:bg-dark z-50 `}
+              className={`rounded-lg border min-h-[20rem] max-h-[25rem] w-auto h-10 ${dropDownSettings.chartIsSticky && "sticky"
+                } top-0 !overflow-visible bg-white dark:bg-dark z-50 `}
             >
               <ViewChart
                 apiData={apiData}
@@ -179,9 +178,8 @@ export const ViewRound = () => {
         ) : (
           <ResizablePanelGroup
             direction={dropDownSettings.sideBySide ? "horizontal" : "vertical"}
-            className={`rounded-lg border md:min-h-[20rem] md:max-h-[20rem] min-h-[30rem] max-h-[30rem] ${
-              dropDownSettings.chartIsSticky && "sticky"
-            } top-0 !overflow-visible bg-white dark:bg-dark z-50`}
+            className={`rounded-lg border md:min-h-[20rem] md:max-h-[20rem] min-h-[30rem] max-h-[30rem] ${dropDownSettings.chartIsSticky && "sticky"
+              } top-0 !overflow-visible bg-white dark:bg-dark z-50`}
           >
             <ResizablePanel defaultSize={62} className="!overflow-visible">
               <ViewChart
@@ -214,9 +212,8 @@ export const ViewRound = () => {
             <Accordion type="single" collapsible defaultValue="item-0">
               <AccordionItem
                 value={`item-${index}`}
-                className={`${
-                  index === categories?.length - 1 ? "border-none" : ""
-                }`}
+                className={`${index === categories?.length - 1 ? "border-none" : ""
+                  }`}
               >
                 <AccordionTrigger className="pb-6 text-lg">
                   {category?.categoryName}
@@ -245,7 +242,7 @@ const ContentAsTable = ({
   answers: UserResponse[];
   selectedUsers: string[];
 }) => {
-  console.log(answers);
+
   return category.questions.map((question, index) => (
     <div key={question.id}>
       <p className="my-4 font-bold">
@@ -306,7 +303,7 @@ const ViewChart = ({
   isSmallDevice: boolean;
   categories: Category[];
 }) => {
-  console.log(chartData);
+
   if (chartData.length === 0) {
     return (
       <div className="flex items-center justify-center h-full">

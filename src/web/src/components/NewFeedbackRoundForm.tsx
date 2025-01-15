@@ -18,7 +18,7 @@ import config from "@/config/config";
 import { loginRequest } from "@/misc/authConfig";
 import { useMsal } from "@azure/msal-react";
 import { User } from "@/misc/RoundDataTypes";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/shadcnComponents/ui/skeleton";
 import { Checkbox } from "@/shadcnComponents/ui/checkbox";
 
@@ -107,7 +107,6 @@ const FormComponent = () => {
       const bearer = "Bearer " + temp.accessToken;
       headers.append("Authorization", bearer);
       headers.append("Content-Type", "application/json");
-      console.log(newData);
       const response = await fetch(`${config.api.baseUrl}/newfeedbackround/`, {
         method: "POST",
         headers: headers,
@@ -240,9 +239,8 @@ const FormComponent = () => {
 
                 <div className="flex flex-col justify-center w-1/2">
                   <div
-                    className={`flex justify-start  flex-wrap text-[12px] pb-2 ${
-                      selectedCoWorkers.length > 0 ? "border-gray-300" : ""
-                    }`}
+                    className={`flex justify-start  flex-wrap text-[12px] pb-2 ${selectedCoWorkers.length > 0 ? "border-gray-300" : ""
+                      }`}
                   >
                     {selectedCoWorkers.map((option) => (
                       <span
