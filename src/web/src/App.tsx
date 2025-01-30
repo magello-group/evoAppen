@@ -10,31 +10,30 @@ import {
 import { loginRequest } from "./misc/authConfig";
 import "./App.css";
 
-import { EditRound } from "./pages/EditRound";
-import NewFeedbackRound from "./pages/NewFeedbackRound";
+import { AnswerRound } from "./pages/AnswerRound";
+import { Round } from "./pages/Round";
 import { InteractionStatus } from "@azure/msal-browser";
-import List from "./pages/List";
+import { Landing } from "./pages/Landing";
 import { ViewRound } from "./pages/ViewRound";
-import NewTemplate from "./pages/NewTemplate";
+import { Template } from "./pages/Template";
 
 const App: React.FC = () => {
-
   return (
     <div className="container mx-auto px-4 sm:px-6 md:px-0 lg:px-0 xl:px-0">
       <div className="max-w-full md:max-w-[50rem] mx-auto">
         <Router>
           <Routes>
-            <Route path="/round/edit/:name" element={<EditRound />} />
+            <Route path="/answer/:name" element={<AnswerRound />} />
             <Route
               path="/"
               element={
                 <ProtectedRouteWrapper>
-                  <List />
+                  <Landing />
                 </ProtectedRouteWrapper>
               }
             />
             <Route
-              path="/round/view/:name"
+              path="/view/:name"
               element={
                 <ProtectedRouteWrapper>
                   <ViewRound />
@@ -42,26 +41,18 @@ const App: React.FC = () => {
               }
             />
             <Route
-              path="/newfeedbackround"
+              path="/round/:id?"
               element={
                 <ProtectedRouteWrapper>
-                  <NewFeedbackRound />
+                  <Round />
                 </ProtectedRouteWrapper>
               }
             />
             <Route
-              path="/newfeedbackround/edit/:name"
+              path="/template/:id?"
               element={
                 <ProtectedRouteWrapper>
-                  <NewFeedbackRound />
-                </ProtectedRouteWrapper>
-              }
-            />
-            <Route
-              path="/newtemplate"
-              element={
-                <ProtectedRouteWrapper>
-                  <NewTemplate />
+                  <Template />
                 </ProtectedRouteWrapper>
               }
             />
@@ -83,10 +74,8 @@ const ProtectedRouteWrapper = ({ children }: { children: ReactNode }) => {
       }
     };
     const redirectTimeout = setTimeout(redirectIfNotAuthenticated, 100);
-
     return () => clearTimeout(redirectTimeout);
   }, [inProgress, isAuthenticated, instance]);
-
   return <AuthenticatedTemplate>{children}</AuthenticatedTemplate>;
 };
 

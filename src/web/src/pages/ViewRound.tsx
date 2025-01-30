@@ -79,7 +79,7 @@ export const ViewRound = () => {
         method: "GET",
         headers: headers,
       };
-      return fetch(config.api.baseUrl + `/round/view/${name}`, options).then(
+      return fetch(config.api.baseUrl + `/view/${name}`, options).then(
         (res) => res.json()
       );
     },
@@ -209,7 +209,7 @@ export const ViewRound = () => {
       <Card className="mb-8 mt-4 pt-2">
         {categories.map((category, index) => (
           <div key={category?.categoryName} className="px-4 md:px-12">
-            <Accordion type="single" collapsible defaultValue="item-0">
+            <Accordion type="single" collapsible defaultValue={`item-${index}`}>
               <AccordionItem
                 value={`item-${index}`}
                 className={`${index === categories?.length - 1 ? "border-none" : ""

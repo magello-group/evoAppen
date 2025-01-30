@@ -3,11 +3,12 @@ import swaggerUI from "swagger-ui-express";
 import cors from "cors";
 import yaml from "yamljs";
 import { getConfig } from "./config";
-import rounds from "./routes/editRounds";
-import protectedRounds from "./routes/viewRounds";
-import newOrEditRounds from "./routes/rounds";
-import newTemplate from "./routes/newtemplate";
-import roundList from "./routes/roundList";
+import answerRound from "./routes/answerRound";
+import viewRound from "./routes/viewRound";
+import template from "./routes/template";
+import templates from "./routes/templates";
+import rounds from "./routes/rounds";
+import round from "./routes/round";
 import { configureMongoose } from "./models/mongoose";
 import { observability } from "./config/observability";
 import auth from "./auth";
@@ -54,13 +55,15 @@ export const createApp = async (): Promise<Express> => {
       origin: originList(),
     })
   );
-  // round routes
-  app.use("/round", rounds);
-  app.use("/round", auth, protectedRounds);
-  app.use("/rounds", auth, roundList);
-  app.use("/newfeedbackround", auth, newOrEditRounds);
-  //template routes
-  app.use("/newtemplate", auth, newTemplate);
+
+  app.use("/answer", answerRound);
+  app.use("/view", auth, viewRound);
+
+  app.use("/rounds", auth, rounds);
+  app.use("/templates", auth, templates);
+
+  app.use("/round", auth, round);
+  app.use("/template", auth, template);
 
   // Swagger UI
   const swaggerDocument = yaml.load("./openapi.yaml");

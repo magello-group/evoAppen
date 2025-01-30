@@ -15,7 +15,7 @@ function getRandomInt(max: number) {
   return Math.floor(Math.random() * max);
 }
 
-router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
+router.get("/:editId", async (req: Request<EditParams>, res) => {
   try {
     const list = await RoundListModel.findOne({ editId: req.params.editId })
       .select({ _id: 0 }) // Exclude the _id field from the returned document
@@ -54,7 +54,7 @@ router.get("/edit/:editId", async (req: Request<EditParams>, res) => {
   }
 });
 
-router.put("/edit/:editId", async (req, res) => {
+router.put("/:editId", async (req, res) => {
   try {
     const { editId } = req.params;
     const newAnswer = req.body;
@@ -79,12 +79,10 @@ router.put("/edit/:editId", async (req, res) => {
 
     newAnswer.userName = userNameToAdd;
     existingRound.answers.push(newAnswer);
-    const updatedRound = await existingRound.save();
+    await existingRound.save();
 
-    console.log("Updated Round:", updatedRound);
     res.status(200).send("Round answers updated successfully");
   } catch (err) {
-    console.error("Error updating round:", err);
     res.status(500).send("Internal Server Error");
   }
 });

@@ -22,7 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { Skeleton } from "@/shadcnComponents/ui/skeleton";
 import { Checkbox } from "@/shadcnComponents/ui/checkbox";
 
-const FormComponent = () => {
+const NewOrEditRound = () => {
   const { instance, accounts } = useMsal();
 
   // coworkers in own state
@@ -83,10 +83,10 @@ const FormComponent = () => {
       };
 
       const [coWorkerList, templateList] = await Promise.all([
-        fetch(`${config.api.baseUrl}/newfeedbackround/coworkers`, options).then(
+        fetch(`${config.api.baseUrl}/round/coworkers`, options).then(
           (res) => res.json()
         ),
-        fetch(`${config.api.baseUrl}/newfeedbackround/templates`, options).then(
+        fetch(`${config.api.baseUrl}/templates`, options).then(
           (res) => res.json()
         ),
       ]);
@@ -107,7 +107,7 @@ const FormComponent = () => {
       const bearer = "Bearer " + temp.accessToken;
       headers.append("Authorization", bearer);
       headers.append("Content-Type", "application/json");
-      const response = await fetch(`${config.api.baseUrl}/newfeedbackround/`, {
+      const response = await fetch(`${config.api.baseUrl}/round/`, {
         method: "POST",
         headers: headers,
         body: JSON.stringify(newData),
@@ -120,7 +120,7 @@ const FormComponent = () => {
     },
   });
 
-  const { mutate, isPending, error: mutationError } = mutation;
+  const { mutate, isPending } = mutation;
   const navigate = useNavigate();
 
   const onSubmit = (inData) => {
@@ -174,7 +174,7 @@ const FormComponent = () => {
             <div className="flex flex-col justify-between">
               <div className="flex flex-row justify-start items-center">
                 <label htmlFor="name" className="pr-4 mr-4 w-1/4">
-                  Namn
+                  Namn *
                 </label>
                 <input
                   {...register("name", {
@@ -194,7 +194,7 @@ const FormComponent = () => {
             <div className="flex flex-col justify-between">
               <div className="flex flex-row justify-start items-center">
                 <label htmlFor="template" className="pr-4 mr-4 w-1/4">
-                  Mall
+                  Mall *
                 </label>
                 <Controller
                   name="template"
@@ -373,7 +373,6 @@ const FormComponent = () => {
                   name="lastDate"
                   control={control}
                   defaultValue={null}
-                  rules={{ required: "Sista svarsdatum är obligatorisk" }}
                   render={({ field }) => (
                     <div className="relative">
                       <DatePicker
@@ -432,4 +431,4 @@ const FormComponent = () => {
   );
 };
 
-export default FormComponent;
+export default NewOrEditRound;

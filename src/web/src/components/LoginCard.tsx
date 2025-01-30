@@ -40,7 +40,7 @@ export const LoginCard = () => {
                 <DropdownMenuContent>
                     <DropdownMenuLabel>{username}</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem >Om EvoAppen</DropdownMenuItem>
+                    <DropdownMenuItem >Om RetroAppen</DropdownMenuItem>
                     <DropdownMenuItem onClick={handleLogOut}>Logga ut</DropdownMenuItem>
                 </DropdownMenuContent>
             </DropdownMenu>

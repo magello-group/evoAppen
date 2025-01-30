@@ -8,7 +8,7 @@
         {
             "name": "Debug Web",
             "request": "launch",
-            "type": "msedge",
+            "type": "chrome",
             "webRoot": "${workspaceFolder}/src/web/src",
             "url": "http://localhost:5173",
             "sourceMapPathOverrides": {

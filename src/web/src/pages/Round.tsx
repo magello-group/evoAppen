@@ -1,12 +1,12 @@
 import { Header } from "@/components/Header";
-import NewFeedbackRoundForm from "@/components/NewFeedbackRoundForm"
+import NewOrEditRound from "@/components/NewOrEditRound"
 
 
-export default function NewFeedbackRound() {
+export const Round = () => {
   return (
     <main className="flex flex-col justify-center items-between">
       <Header title="Ny feedbackomgång" titleSize="l" description="" hideLogin={false} />
-      <NewFeedbackRoundForm />
+      <NewOrEditRound />
     </main>
   );
 }

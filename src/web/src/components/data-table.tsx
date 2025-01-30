@@ -29,15 +29,17 @@ import { Link } from "react-router-dom";
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  isRounds: boolean,
+  isRounds: boolean;
+  deleteFunction: (id: string) => Promise<unknown>;
 }
 /**
  * Gör denne generic till både templates och rounds 
  */
-export function DataTable<TData, TValue,>({
+export function DataTable<TData, TValue>({
   columns,
   data,
   isRounds = true,
+  deleteFunction,
 }: DataTableProps<TData, TValue>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -61,6 +63,9 @@ export function DataTable<TData, TValue,>({
       columnFilters,
       columnVisibility,
     },
+    meta: {
+      deleteFunction,
+    },
   });
 
   return (
@@ -81,7 +86,7 @@ export function DataTable<TData, TValue,>({
                   className="max-w-sm"
                 />
 
-                <Link to={isRounds ? `/newfeedbackround` : `/newtemplate`}>
+                <Link to={isRounds ? `/round` : `/template`}>
                   <Button
                     variant={"outline"}
                     className="no-underline hover:underline"

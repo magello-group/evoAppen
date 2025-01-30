@@ -1,102 +1,51 @@
 import express, { Request } from "express";
-import { CoWorkerModel } from "../models/coworkers";
+
+import { RoundListModel } from "../models/round";
 
 import mongoose from "mongoose";
 import { TemplateModel } from "../models/template";
-import { RoundListModel, User } from "../models/round";
 
 const router = express.Router();
 
-router.get("/coworkers", async (req: Request, res) => {
+router.get("/", async (req: Request, res) => {
   try {
-    const list = await CoWorkerModel.find().orFail().exec();
-    res.json(list);
-  } catch (err: any) {
-    switch (err.constructor) {
-      case mongoose.Error.CastError:
-      case mongoose.Error.DocumentNotFoundError:
-        return res.status(404).send();
-      default:
-        throw err;
-    }
-  }
-});
+    const userId = (req as any).preferredUserId;
+    // Assuming the user ID is stored in req.preferedUserUd
+    // Query to find all rounds where authorizedUsersIds contains the userId
+    const list = await RoundListModel.find({
+      authorizedUsersIds: { $in: [userId] },
+    }).exec();
 
-router.get("/templates", async (req: Request, res) => {
-  try {
-    const list = await TemplateModel.find({}, "_id templateName")
-      .orFail()
-      .exec();
-    res.json(list);
-  } catch (err: any) {
-    switch (err.constructor) {
-      case mongoose.Error.CastError:
-      case mongoose.Error.DocumentNotFoundError:
-        return res.status(404).send();
-      default:
-        throw err;
-    }
-  }
-});
-
-router.post("/", async (req: Request, res) => {
-  try {
-    const roundBody = req.body;
-
-    // Validate required fields
-    if (
-      !roundBody.name ||
-      !roundBody.template ||
-      !roundBody.lastDate ||
-      !roundBody.nameIsMandatory ||
-      !roundBody.authorizedUsers
-    ) {
-      return res.status(400).json({ error: "Missing required fields" });
+    if (!list || list.length === 0) {
+      return res.status(200).json([]); // Return empty array if no rounds found
     }
 
-    // Generate a unique editId using Mongoose
-    const editId = new mongoose.Types.ObjectId();
-
-    const authorizedUsers = roundBody.authorizedUsers;
-    const alreadyExists = authorizedUsers.some(
-      (user: User) => user.userId === (req as any)?.preferredUserId
+    const roundsWithTemplateNames = await Promise.all(
+      list.map(async (round) => {
+        const template = await TemplateModel.findById(
+          round.templateId,
+          "templateName"
+        ).exec(); // Fetch only the name field
+        const roundObj = round.toObject();
+        const numberOfRespondents = roundObj.answers.length;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { answers, ...rest } = roundObj;
+        return {
+          ...rest,
+          templateName: template?.toObject()?.templateName ?? "",
+          numberOfRespondents: numberOfRespondents,
+        };
+      })
     );
-    if (!alreadyExists)
-      authorizedUsers.push({
-        userId: (req as any)?.preferredUserId,
-        userName: (req as any)?.preferredUserName,
-        id: new mongoose.Types.ObjectId(),
-      });
-    const userIdsArray = authorizedUsers.map((elem: User) => elem.userId);
 
-    // Create a new round document
-    const newRound = new RoundListModel({
-      name: roundBody.name,
-      templateId: roundBody.template,
-      lastDate: roundBody.lastDate,
-      nameIsMandatory: roundBody.nameIsMandatory,
-      motivationsAreMandatory: roundBody.motivationsAreMandatory,
-      authorizedUsers: authorizedUsers,
-      authorizedUsersIds: userIdsArray,
-      description: roundBody.description ?? "",
-      editId: editId.toString(), // Add editId to the new round object
-      created: new Date(),
-    });
-
-    // Save the new round to the database
-    const savedRound = await newRound.save();
-
-    // Return the saved round
-    res.status(201).json(savedRound);
+    res.status(200).json(roundsWithTemplateNames); // Send the list of rounds as JSON response
   } catch (err: any) {
     switch (err.constructor) {
-      case mongoose.Error.ValidationError:
-        return res.status(400).json({ error: err.message });
       case mongoose.Error.CastError:
       case mongoose.Error.DocumentNotFoundError:
         return res.status(404).send();
       default:
-        return res.status(500).json({ error: "Internal server error" });
+        return res.status(500).send(); // Send a 500 status code for other errors
     }
   }
 });

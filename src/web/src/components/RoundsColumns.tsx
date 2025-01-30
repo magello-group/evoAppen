@@ -30,10 +30,7 @@ import {
 } from "@/shadcnComponents/ui/dialog";
 import { useState } from "react";
 import { QRCodeSVG } from "qrcode.react";
-import { useMutation } from "@tanstack/react-query";
-import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../misc/authConfig";
-import config from "../config/config";
+
 import { Input } from "@/shadcnComponents/ui/input";
 
 const DIALOG_STATES = {
@@ -42,7 +39,11 @@ const DIALOG_STATES = {
   DELETE: "DELETE",
 };
 
-export const RoundsColumns: ColumnDef<dateInterFace>[] = [
+interface TableMeta {
+  deleteFunction?: (id: string) => Promise<unknown>;
+}
+
+export const RoundsColumns: ColumnDef<dateInterFace, TableMeta>[] = [
 
   // Kanske sen om man ska kunna jämföra/lägga in
   // {
@@ -72,7 +73,7 @@ export const RoundsColumns: ColumnDef<dateInterFace>[] = [
     header: () => <div className="text-left">Namn</div>,
     cell: ({ row }) => {
       return (
-        <Link to={`/round/view/${row.original._id}`}>
+        <Link to={`/view/${row.original._id}`}>
           <span className="no-underline hover:underline">
             {row.getValue("name")}
           </span>
@@ -122,63 +123,21 @@ export const RoundsColumns: ColumnDef<dateInterFace>[] = [
   },
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [dialogState, setDialogState] = useState(DIALOG_STATES.CLOSED);
 
-      // Function to close the dialog
       const closeDialog = () => {
         setDialogState(DIALOG_STATES.CLOSED);
       };
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { instance, accounts } = useMsal();
-      const handleErrorResponse = async (response: Response) => {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "An error occurred");
-        } else {
-          const text = await response.text();
-          throw new Error(`Unexpected response: ${text}`);
-        }
-      };
-
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const deleteRoundMutation = useMutation({
-        mutationFn: async (roundId: string) => {
-          const temp = await instance.acquireTokenSilent({
-            ...loginRequest,
-            account: accounts[0],
-          });
-
-          const headers = new Headers();
-          const bearer = "Bearer " + temp.accessToken;
-          headers.append("Authorization", bearer);
-          headers.append("Content-Type", "application/json");
-          console.log(`${config.api.baseUrl}/round/${roundId}`);
-          const response = await fetch(
-            `${config.api.baseUrl}/rounds/${roundId}`,
-            {
-              method: "DELETE",
-              headers: headers,
-            }
-          );
-
-          if (!response.ok) {
-            await handleErrorResponse(response);
-          }
-          return response.json();
-        },
-      });
-
       const confirmDelete = async () => {
-
-
         try {
-          await deleteRoundMutation.mutateAsync(row.original._id);
+          const deleteFunction = table.options.meta?.deleteFunction;
+          if (deleteFunction) {
+            await deleteFunction(row.original._id);
+          }
           setDialogState(DIALOG_STATES.CLOSED);
-          window.location.reload();
         } catch (error) {
           console.error("Error removing round:", error);
         }
@@ -202,13 +161,13 @@ export const RoundsColumns: ColumnDef<dateInterFace>[] = [
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Settings className="mr-3 size-4" />
-                <Link to={`/newfeedbackround/edit/${row.getValue("name")}`}>
+                <Link to={`/round/${row.getValue("name")}`}>
                   <span className="no-underline hover:underline">Ändra</span>
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem>
                 <Pencil className="mr-3 size-4" />
-                <Link to={`/round/edit/${row.original.editId}`}>
+                <Link to={`/answer/${row.original.editId}`}>
                   <span className="no-underline">Lämna feedback</span>
                 </Link>
               </DropdownMenuItem>
@@ -239,12 +198,12 @@ export const RoundsColumns: ColumnDef<dateInterFace>[] = [
               <DialogContent>
                 <DialogHeader className="items-center">
                   <DialogTitle>Dela länk</DialogTitle>
-                  <Input id="link" value={`${window.location.href}round/edit/${row.original.editId}`}
+                  <Input id="link" value={`${window.location.href}answer/${row.original.editId}`}
                   />
                   <DialogDescription>
                     <QRCodeSVG
                       size={400}
-                      value={`${window.location.href}round/edit/${row.original.editId}`}
+                      value={`${window.location.href}answer/${row.original.editId}`}
                     />
                   </DialogDescription>
                 </DialogHeader>

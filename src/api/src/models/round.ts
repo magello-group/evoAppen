@@ -9,7 +9,7 @@ export interface RoundData {
   templateId: string;
   authorizedUsers: User[];
   authorizedUsersIds: string[];
-  lastDate: Date;
+  lastDate?: Date;
   nameIsMandatory: NameIsMandatory;
 }
 

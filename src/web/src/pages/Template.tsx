@@ -1,7 +1,7 @@
 import { Header } from "@/components/Header";
-import NewTemplateForm from "@/components/new-template-form";
+import { NewOrEditTemplate } from "@/components/NewOrEditTemplate";
 
-export default function NewTemplate() {
+export const Template = () => {
   return (
     <main className="flex flex-col justify-center items-between">
       <Header
@@ -10,7 +10,7 @@ export default function NewTemplate() {
         description=""
         hideLogin={false}
       />
-      <NewTemplateForm />
+      <NewOrEditTemplate />
     </main>
   );
 }

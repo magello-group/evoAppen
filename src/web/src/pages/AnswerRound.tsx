@@ -26,7 +26,7 @@ import {
 
 import { Card } from "@/shadcnComponents/ui/card";
 import { Button } from "@/shadcnComponents/ui/button";
-import { Minus, Plus } from "lucide-react";
+import { CheckCheck, Loader2, Minus, Plus } from "lucide-react";
 import {
   Radar,
   RadarChart,
@@ -62,7 +62,7 @@ const mutationFn = async ({
   id: string;
   newData: RoundSubmit;
 }): Promise<Response> => {
-  const response = await fetch(config.api.baseUrl + `/round/edit/${id}`, {
+  const response = await fetch(config.api.baseUrl + `/answer/${id}`, {
     method: "PUT",
     headers: {
       "Content-Type": "application/json",
@@ -75,18 +75,20 @@ const mutationFn = async ({
   return response;
 };
 
-export const EditRound = () => {
+export const AnswerRound = () => {
   const { name = "" } = useParams();
+  const roundId = name
   const mutation = useMutation({ mutationFn });
-  const { mutate, isSuccess } = mutation;
+  const { mutate, isSuccess, isPending: mutationIsPending } = mutation;
   const { isPending, error, data } = useQuery({
     queryKey: ["editData"],
     queryFn: () => {
-      return fetch(config.api.baseUrl + `/round/edit/${name}`).then((res) =>
+      return fetch(config.api.baseUrl + `/answer/${roundId}`).then((res) =>
         res.json()
       );
     },
   });
+
   const apiData = data;
   const [chartData, setChartData] = useState<ChartData[]>([]);
   const [accumulatedData, setAccumulatedData] = useState<ChartData[]>([]);
@@ -106,14 +108,7 @@ export const EditRound = () => {
   const nameIsMandatory: string = apiData?.nameIsMandatory;
   const motivationsAreMandatory: string = apiData?.motivationsAreMandatory;
 
-  const formHasError = () => {
-    const motivationsMissing =
-      motivationsAreMandatory &&
-      Object.values(formState).some((elem) => elem.motivation === "");
-    const nameMissing =
-      nameIsMandatory === NameIsMandatory.NAMNGIVET && userName === "";
-    return shouldValidate && (motivationsMissing || nameMissing) && !isSuccess;
-  };
+
 
   // Effect for data manipulation after fetch
   useEffect(() => {
@@ -135,6 +130,15 @@ export const EditRound = () => {
       setAccumulatedData(transposeToAcculatedData(chartData, ["user1"]));
     }
   }, [dropDownSettings, chartData]);
+
+  const formHasError = () => {
+    const motivationsMissing =
+      motivationsAreMandatory &&
+      Object.values(formState).some((elem) => elem.motivation === "");
+    const nameMissing =
+      nameIsMandatory === NameIsMandatory.NAMNGIVET && userName === "";
+    return shouldValidate && (motivationsMissing || nameMissing) && !isSuccess;
+  };
 
   if (isPending)
     return (
@@ -186,7 +190,8 @@ export const EditRound = () => {
     const formOk = !(motivationsMissing || nameMissing);
 
     if (formOk) {
-      mutate({ id: name, newData: { userName, answers: formState } });
+      setShouldValidate(false)
+      mutate({ id: roundId, newData: { userName, answers: formState } });
     }
   };
 
@@ -223,7 +228,7 @@ export const EditRound = () => {
             <SettingsDropDown
               allUsers={[]}
               selectedUsers={[]}
-              setSelectedUsers={() => {}}
+              setSelectedUsers={() => { }}
               dropDownSettings={dropDownSettings}
               setDropDownSettings={setDropDownSettings}
               isSmallDevice={isSmallDevice}
@@ -238,9 +243,8 @@ export const EditRound = () => {
         {isSmallDevice || !dropDownSettings.sideBySide ? (
           <>
             <Card
-              className={`rounded-lg border min-h-[20rem] max-h-[25rem] w-auto h-10 ${
-                dropDownSettings.chartIsSticky && "sticky"
-              } top-0 !overflow-visible bg-white dark:bg-dark z-50`}
+              className={`rounded-lg border min-h-[20rem] max-h-[25rem] w-auto h-10 ${dropDownSettings.chartIsSticky && "sticky"
+                } top-0 !overflow-visible bg-white dark:bg-dark z-50`}
             >
               <EditChart
                 apiData={apiData}
@@ -262,9 +266,8 @@ export const EditRound = () => {
         ) : (
           <ResizablePanelGroup
             direction={dropDownSettings.sideBySide ? "horizontal" : "vertical"}
-            className={`rounded-lg border md:min-h-[20rem] md:max-h-[20rem] min-h-[30rem] max-h-[30rem] ${
-              dropDownSettings.chartIsSticky && "sticky"
-            } top-0 !overflow-visible bg-white dark:bg-dark z-50`}
+            className={`rounded-lg border md:min-h-[20rem] md:max-h-[20rem] min-h-[30rem] max-h-[30rem] ${dropDownSettings.chartIsSticky && "sticky"
+              } top-0 !overflow-visible bg-white dark:bg-dark z-50`}
           >
             <ResizablePanel defaultSize={62} className="!overflow-visible">
               <EditChart
@@ -292,12 +295,11 @@ export const EditRound = () => {
       <Card className="mb-8 md:mt-4 pt-2">
         {categories.map((category, index) => (
           <div key={category?.categoryName} className="md:px-12 mx-6">
-            <Accordion type="single" collapsible defaultValue="item-0">
+            <Accordion type="single" collapsible defaultValue={`item-${index}`}>
               <AccordionItem
                 value={`item-${index}`}
-                className={`${
-                  index === categories?.length - 1 ? "border-none" : ""
-                }`}
+                className={`${index === categories?.length - 1 ? "border-none" : ""
+                  }`}
               >
                 <AccordionTrigger className="md:pb-6 text-lg">
                   {category?.categoryName}
@@ -346,13 +348,18 @@ export const EditRound = () => {
             className="w-fit "
             onClick={() => submitRound()}
           >
-            {isSuccess ? `Alles gut 👍` : `Skicka in`}
+            {mutationIsPending ? (
+              <Loader2 className="animate-spin" />
+            ) : (
+              isSuccess ? (
+                <CheckCheck className="animate-in fade-in duration-300" />
+              ) : "Skicka in"
+            )}
           </Button>
           {formHasError() && (
             <ErrorP
-              text={`Det saknas motiveringar ${
-                userName === "" ? " och namn" : ""
-              }`}
+              text={`Det saknas motiveringar ${userName === "" ? " och namn" : ""
+                }`}
             />
           )}
         </div>

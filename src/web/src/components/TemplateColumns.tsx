@@ -1,13 +1,8 @@
-import { dateInterFace } from "@/data/sampleData";
 import { ColumnDef } from "@tanstack/react-table";
 
 
 import {
-
   MoreHorizontal,
-  Pencil,
-  UserRound,
-  Settings,
   Trash,
 } from "lucide-react";
 import { Button } from "@/shadcnComponents/ui/button";
@@ -20,8 +15,6 @@ import {
   DropdownMenuTrigger,
 } from "@/shadcnComponents/ui/dropdown-menu";
 
-import { Link } from "react-router-dom";
-import { TokensIcon } from "@radix-ui/react-icons";
 
 import {
   Dialog,
@@ -31,25 +24,31 @@ import {
   DialogTitle,
 } from "@/shadcnComponents/ui/dialog";
 import { useState } from "react";
-import { QRCodeSVG } from "qrcode.react";
-import { useMutation } from "@tanstack/react-query";
-import { useMsal } from "@azure/msal-react";
-import { loginRequest } from "../misc/authConfig";
-import config from "../config/config";
-import { Input } from "@/shadcnComponents/ui/input";
+import { Link } from "react-router-dom";
+
 
 const DIALOG_STATES = {
   CLOSED: "CLOSED",
   QR: "QR",
   DELETE: "DELETE",
 };
-// SAMMA NAMN VISA INTE FLERA GÅNGER
-export const TemplateColumns: ColumnDef<dateInterFace>[] = [
+
+interface Template {
+  templateName: string;
+  id: string;
+}
+
+interface TableMeta {
+  deleteFunction?: (id: string) => Promise<unknown>;
+}
+
+export const TemplateColumns: ColumnDef<Template, TableMeta>[] = [
   {
     accessorKey: "templateName",
     header: () => <div className="text-left">Namn</div>,
     cell: ({ row }) => {
-      return <div className="text-left">{row.getValue("templateName")}</div>;
+      return <Link to={`template/${row.getValue("id")}`} className="text-left">{row.getValue("templateName")}</Link>;
+
     },
   },
   {
@@ -63,7 +62,8 @@ export const TemplateColumns: ColumnDef<dateInterFace>[] = [
 
   {
     id: "actions",
-    cell: ({ row }) => {
+    cell: ({ row, table }) => {
+
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [dialogState, setDialogState] = useState(DIALOG_STATES.CLOSED);
 
@@ -72,54 +72,15 @@ export const TemplateColumns: ColumnDef<dateInterFace>[] = [
         setDialogState(DIALOG_STATES.CLOSED);
       };
 
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const { instance, accounts } = useMsal();
-      const handleErrorResponse = async (response: Response) => {
-        const contentType = response.headers.get("content-type");
-        if (contentType && contentType.includes("application/json")) {
-          const errorData = await response.json();
-          throw new Error(errorData.message || "An error occurred");
-        } else {
-          const text = await response.text();
-          throw new Error(`Unexpected response: ${text}`);
-        }
-      };
-
-      // eslint-disable-next-line react-hooks/rules-of-hooks
-      const deleteRoundMutation = useMutation({
-        mutationFn: async (roundId: string) => {
-          const temp = await instance.acquireTokenSilent({
-            ...loginRequest,
-            account: accounts[0],
-          });
-
-          const headers = new Headers();
-          const bearer = "Bearer " + temp.accessToken;
-          headers.append("Authorization", bearer);
-          headers.append("Content-Type", "application/json");
-          console.log(`${config.api.baseUrl}/round/${roundId}`);
-          const response = await fetch(
-            `${config.api.baseUrl}/rounds/${roundId}`,
-            {
-              method: "DELETE",
-              headers: headers,
-            }
-          );
-
-          if (!response.ok) {
-            await handleErrorResponse(response);
-          }
-          return response.json();
-        },
-      });
-
       const confirmDelete = async () => {
         try {
-          await deleteRoundMutation.mutateAsync(row.original._id);
+          const deleteFunction = table.options.meta?.deleteFunction;
+          if (deleteFunction) {
+            await deleteFunction(row.original.id);
+          }
           setDialogState(DIALOG_STATES.CLOSED);
-          window.location.reload();
         } catch (error) {
-          console.error("Error removing round:", error);
+          console.error("Error removing template:", error);
         }
       };
 
@@ -144,26 +105,7 @@ export const TemplateColumns: ColumnDef<dateInterFace>[] = [
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
-          {dialogState === DIALOG_STATES.QR && (
-            <Dialog
-              open={dialogState === DIALOG_STATES.QR}
-              onOpenChange={closeDialog}
-            >
-              <DialogContent>
-                <DialogHeader className="items-center">
-                  <DialogTitle>Dela länk</DialogTitle>
-                  <Input id="link" value={`${window.location.href}round/edit/${row.original.editId}`}
-                  />
-                  <DialogDescription>
-                    <QRCodeSVG
-                      size={400}
-                      value={`${window.location.href}round/edit/${row.original.editId}`}
-                    />
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
-          )}
+
           {dialogState === DIALOG_STATES.DELETE && (
             <Dialog
               open={dialogState === DIALOG_STATES.DELETE}

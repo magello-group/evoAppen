@@ -1,6 +1,6 @@
-# EvoAppen by Magello
+# RetroAppen by Magello
 
-What is EvoAppen?
+What is RetroAppen?
 
 *I grunder är det ett verktyg för att lämna och visa feedback för konsulter, visualiserat i spindeldiagram.*
 
