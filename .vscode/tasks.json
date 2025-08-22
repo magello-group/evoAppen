@@ -86,7 +86,7 @@
             "isBackground": true,
             "dependsOn": "npm install (functions)",
             "options": {
-                "cwd": "${workspaceFolder}/src\\api"
+                "cwd": "${workspaceFolder}/src/api"
             }
         },
         {
@@ -94,7 +94,7 @@
             "label": "npm install (functions)",
             "command": "npm install",
             "options": {
-                "cwd": "${workspaceFolder}/src\\api"
+                "cwd": "${workspaceFolder}/src/api"
             }
         },
         {
@@ -103,7 +103,33 @@
             "command": "npm prune --production",
             "problemMatcher": [],
             "options": {
-                "cwd": "${workspaceFolder}/src\\api"
+                "cwd": "${workspaceFolder}/src/api"
+            }
+        },
+        {
+            "label": "Start Vite",
+            "type": "shell",
+            "command": "npm run dev",
+            "isBackground": true,
+            "problemMatcher": [
+                {
+                    "pattern": [
+                        {
+                            "regexp": ".",
+                            "file": 1,
+                            "location": 2,
+                            "message": 3
+                        }
+                    ],
+                    "background": {
+                        "activeOnStart": true,
+                        "beginsPattern": "vite v\\d+\\.\\d+\\.\\d+",
+                        "endsPattern": "Local:.*localhost:\\d+"
+                    }
+                }
+            ],
+            "options": {
+                "cwd": "${workspaceFolder}/src/web"
             }
         }
     ],

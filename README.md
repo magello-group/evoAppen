@@ -48,6 +48,34 @@ npm install
 npm start
 ```
 
+### Debug the application in Visual Studio Code
+
+> Be sure that you have executed `npm install` in both the `api` and `web` project to get all dependencies. Use at least the LTS version of Node.js.
+
+The project has some prerequisites that is required when debugging in Visual Studio Code:
+- [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd) must be installed.
+- [Azure Functions Development tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local)
+
+All other dependencies should be installed using npm install.
+
+In addition, there are two other requirements connected to Azure (these are general requirements as well for running it live):
+1. A Cosmos Mongo DB account with a database.
+  - Since this repo uses `mongoose` for db communication you could use any type of MongoDB instance, it is not restricted to Azure Cosmos DB for MongoDB.
+2. An Entra Id app registration (for authentication process).
+
+Lastly, both the `api` and `web` project requires an `.env` file with environment configuration.
+
+#### `.env` file `api`
+```
+AZURE_COSMOS_CONNECTION_STRING="<Connection string to the Cosmos MongoDB instance>"
+AZURE_COSMOS_DATABASE_NAME="<DB name for the Mongo DB to use>"
+```
+
+#### `.env` file for `web`
+```
+VITE_API_CLIENT_ID=<The client id of the entra app registration that was created>
+```
+
 ### Deploy the application
 Currently, there is no staging or test environment, only production. To release the web or API, you will need an "env-folder" for Azure from the technical team and the Azure Developer CLI. Follow the installation instructions. Access to Azure resources will also need to be granted.
 
