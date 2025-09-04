@@ -4,4 +4,5 @@ src/api/.env
 .DS_Store
 .azure.zip
 src/web/.envis.local
-
+.env
+src/web/vite.config.ts.timestamp*
