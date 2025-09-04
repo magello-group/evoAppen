@@ -1,0 +1,54 @@
+services:
+  evo-mongodb:
+    image: mongodb/mongodb-community-server:latest
+    container_name: mongodb
+    restart: no
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodata:/data/db
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: muser
+      MONGODB_INITDB_ROOT_PASSWORD: mpass
+  evo-backend:
+    image: node:20-alpine
+    restart: no
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./src/api:/home/node/api
+    working_dir: /home/node/api
+    command: sh -c "npm install && npm start"
+    environment:
+      AZURE_COSMOS_CONNECTION_STRING: "mongodb://muser:mpass@evo-mongodb:27017"
+      AZURE_COSMOS_DATABASE_NAME: evodb
+      AZURE_KEY_VAULT_ENDPOINT: ""
+  evo-frontend:
+    image: node:20-alpine
+    restart: no
+    volumes:
+      - frontenddata:/home/node/web
+    ports:
+      - "5173:5173"
+    working_dir: /home/node/web
+    command: sh -c "npm install && npm install -g vite && vite --host 0.0.0.0"
+    environment:
+      VITE_API_CLIENT_ID: "${VITE_API_CLIENT_ID}" # Put the line VITE_API_CLIENT_ID="something" in file .env in this folder
+
+volumes:
+  mongodata:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./.data/db
+      o: bind
+  frontenddata:
+    driver: local
+    driver_opts:
+      type: none
+      device: ./src/web
+      o: bind
+networks:
+  internal:
+    driver: bridge
+
