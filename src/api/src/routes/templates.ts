@@ -6,7 +6,6 @@ const router = express.Router();
 router.get("/", async (req: Request, res) => {
   try {
     const list = await TemplateModel.find({}, "_id templateName")
-      .orFail()
       .exec();
     res.json(list);
   } catch (err: any) {

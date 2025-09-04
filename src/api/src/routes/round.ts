@@ -8,7 +8,7 @@ const router = express.Router();
 
 router.get("/coworkers", async (req: Request, res) => {
   try {
-    const list = await CoWorkerModel.find().orFail().exec();
+    const list = await CoWorkerModel.find().exec();
     res.json(list);
   } catch (err: any) {
     switch (err.constructor) {
