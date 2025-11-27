@@ -23,6 +23,11 @@ export const logger = winston.createLogger({
 });
 
 export const observability = (config: ObservabilityConfig) => {
+    if(!config.connectionString) {
+        // We skip App Insights setup if no connection string is provided
+        return;
+    }
+
     // Append App Insights to the winston logger
     logger.defaultMeta = {
         app: config.roleName
@@ -42,7 +47,7 @@ export const observability = (config: ObservabilityConfig) => {
             .setDistributedTracingMode(applicationInsights.DistributedTracingModes.AI_AND_W3C);
 
         applicationInsights.defaultClient.context.tags[applicationInsights.defaultClient.context.keys.cloudRole] = config.roleName;
-        applicationInsights.defaultClient.setAutoPopulateAzureProperties(true);
+        applicationInsights.defaultClient.setAutoPopulateAzureProperties();
         applicationInsights.start();
 
         const applicationInsightsTransport = new ApplicationInsightsTransport({

@@ -5,12 +5,10 @@ import { logger } from "../config/observability";
 export const configureMongoose = async (config: DatabaseConfig) => {
     mongoose.set("toJSON", {
         virtuals: true,
-        versionKey: false,
-        transform: (_, converted) => {
-            converted.id = converted._id;
-            delete converted._id;
-        }
+        versionKey: false        
     });
+
+    mongoose.set("strictQuery", true);
 
     try {
         const db = mongoose.connection;

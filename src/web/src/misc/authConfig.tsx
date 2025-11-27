@@ -5,10 +5,10 @@ export const msalConfig: Configuration = {
     auth: {
         clientId: import.meta.env.VITE_API_CLIENT_ID,
         authority: "https://login.microsoftonline.com/0ef3ca2b-0b6f-4543-b1f3-eb1e7ec2069f",
-        redirectUri: import.meta.env.VITE_APP_URI
+        redirectUri: import.meta.env.VITE_APP_URI || window.location.origin
     },
     system: {
-        allowNativeBroker: false // Disables WAM Broker
+        allowPlatformBroker: false // Disables WAM Broker
     }
 };
 

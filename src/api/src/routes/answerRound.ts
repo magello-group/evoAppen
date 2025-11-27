@@ -67,7 +67,7 @@ router.put("/:editId", async (req, res) => {
 
     // Check for duplicate userName and handle it by appending a suffix
     const existingUserNames = existingRound.answers.map(
-      (answer) => answer.userName
+      userResponse => userResponse.userName
     );
     let userNameToAdd = newAnswer.userName;
     let suffix = 1;
@@ -82,7 +82,7 @@ router.put("/:editId", async (req, res) => {
     await existingRound.save();
 
     res.status(200).send("Round answers updated successfully");
-  } catch (err) {
+  } catch {
     res.status(500).send("Internal Server Error");
   }
 });

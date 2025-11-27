@@ -120,6 +120,6 @@ const RoundListSchema = new Schema(
   }
 );
 
-export const RoundListModel = mongoose.model("rounds", RoundListSchema);
+export const RoundListModel = mongoose.model<RoundData & Document>("rounds", RoundListSchema);
 
 // module.exports = RoundListModel;

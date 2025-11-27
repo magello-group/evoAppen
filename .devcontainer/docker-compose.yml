@@ -1,0 +1,23 @@
+services:
+  devcontainer:
+    image: mcr.microsoft.com/devcontainers/javascript-node:24-bookworm
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+    # Ensure MongoDB is reachable from the devcontainer
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: muser
+      MONGODB_INITDB_ROOT_PASSWORD: mpass
+    volumes:
+      - mongodata:/data/db
+
+volumes:
+  mongodata:

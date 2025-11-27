@@ -13,8 +13,7 @@ Developed with the help of this [template](https://learn.microsoft.com/en-us/sam
 - **Authentication**: Login and authentication with Entra using useMsal Hooks and JWT access tokens for API
 
 ## Azure Infrastructure
-- [**Azure Static Web Apps**](https://docs.microsoft.com/azure/static-web-apps/) to host the web frontend
-- [**Azure Function Apps**](https://docs.microsoft.com/azure/azure-functions/) to host the API backend
+- [**Azure Container Apps**](https://learn.microsoft.com/azure/container-apps/) to host the web frontend and backend
 - [**Azure Cosmos DB API for MongoDB**](https://docs.microsoft.com/azure/cosmos-db/mongodb/mongodb-introduction) for database
 - [**Azure Monitor**](https://docs.microsoft.com/azure/azure-monitor/) for monitoring and logging
 - [**Azure Key Vault**](https://docs.microsoft.com/azure/key-vault/) for securing secrets
@@ -52,10 +51,6 @@ npm start
 
 > Be sure that you have executed `npm install` in both the `api` and `web` project to get all dependencies. Use at least the LTS version of Node.js.
 
-The project has some prerequisites that is required when debugging in Visual Studio Code:
-- [Azure Developer CLI](https://learn.microsoft.com/en-us/azure/developer/azure-developer-cli/install-azd) must be installed.
-- [Azure Functions Development tools](https://learn.microsoft.com/en-us/azure/azure-functions/functions-run-local)
-
 All other dependencies should be installed using npm install.
 
 In addition, there are two other requirements connected to Azure (these are general requirements as well for running it live):
@@ -77,40 +72,7 @@ VITE_API_CLIENT_ID=<The client id of the entra app registration that was created
 ```
 
 ### Deploy the application
-Currently, there is no staging or test environment, only production. To release the web or API, you will need an "env-folder" for Azure from the technical team and the Azure Developer CLI. Follow the installation instructions. Access to Azure resources will also need to be granted.
-
-Deploying the Application
-Ensure you have the azd installed.
-Place the .azure (not zipped) folder in the root of the repository.
-From the root of the repository, run:
-
-```
-azd auth  # I think(?)
-azd show
-```
-
-You should see output similar to:
-
-```
-evoAppen
-  Services:
-    api  https://func-api..../
-    web  https://icy-..../
-  Environments:
-    evo3 [Current]
-  View in Azure Portal:
-    https://portal.azure.com/#@/
-
-````
-
-To deploy, run:
-```
-azd deploy web   # To deploy the frontend
-azd deploy api   # To deploy the backend
-
-# Or deploy both
-azd deploy
-```
+The application is deployed using Bicep and GitHub Actions CI/CD workflows.
 
 Happy coding!
 

@@ -84,15 +84,15 @@ const NewOrEditRound = () => {
 
       const [coWorkerList, templateList] = await Promise.all([
         fetch(`${config.api.baseUrl}/round/coworkers`, options).then(
-          (res) => res.json()
+          res => res.status === 404 || res.status === 204 ? [] : res.json()
         ),
         fetch(`${config.api.baseUrl}/templates`, options).then(
-          (res) => res.json()
+          res => res.status === 404 || res.status === 204 ? [] : res.json()
         ),
       ]);
 
       return { coWorkerList, templateList };
-    },
+    }
   });
 
   // Define the mutation using useMutation

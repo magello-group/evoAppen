@@ -13,7 +13,7 @@
             "sourceMapPathOverrides": {
                 "webpack:///src/*": "${webRoot}/*"
             },
-            "preLaunchTask": "Start Vite"
+            "preLaunchTask": "npm start (web)"
         },
         {
             "name": "Debug Web (Edge)",
@@ -24,43 +24,27 @@
             "sourceMapPathOverrides": {
                 "webpack:///src/*": "${webRoot}/*"
             },
-            "preLaunchTask": "Start Vite"
+            "preLaunchTask": "npm start (web)"
         },
         {
             "name": "Debug API",
             "request": "launch",
-            "runtimeArgs": [
-                "start",
-                "--typescript",
-                "--port",
-                "3100"
-            ],
-            "runtimeExecutable": "func",
             "skipFiles": [
                 "<node_internals>/**"
             ],
             "type": "node",
+            "runtimeExecutable": "npm",
+            "runtimeArgs": [
+                "run",
+                "dev"
+            ],
             "cwd": "${workspaceFolder}/src/api",
-            "envFile": "${input:dotEnvFilePath}",
+            "envFile": "${workspaceFolder}/src/api/.env",
             "env": {
                 "NODE_ENV": "development"
             },
-            "preLaunchTask": "Restore API",
-            "outputCapture": "std"
-        },
-        {
-            "name": "Attach to Node Functions",
-            "type": "node",
-            "request": "attach",
-            "port": 9229,
-            "preLaunchTask": "func: host start"
-        }
-    ],
-    "inputs": [
-        {
-            "id": "dotEnvFilePath",
-            "type": "command",
-            "command": "azure-dev.commands.getDotEnvFilePath"
+            "outputCapture": "std",
+            "preLaunchTask": "npm clean (api)"
         }
     ]
 }
