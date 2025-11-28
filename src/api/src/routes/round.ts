@@ -3,6 +3,7 @@ import { CoWorkerModel } from "../models/coworkers";
 
 import mongoose from "mongoose";
 import { RoundListModel, User } from "../models/round";
+import { logger } from "../config/observability";
 
 const router = express.Router();
 
@@ -106,7 +107,7 @@ router.delete("/:id", async (req, res) => {
       rounds: list,
     });
   } catch (err) {
-    console.error(err);
+    logger.error(err);
     return res.status(500).json({ error: "Internal server error" });
   }
 });

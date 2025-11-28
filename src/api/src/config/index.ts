@@ -4,6 +4,7 @@ import { DefaultAzureCredential } from "@azure/identity";
 import { SecretClient } from "@azure/keyvault-secrets";
 import { logger } from "../config/observability";
 import config, { IConfig } from "config";
+import os from "os";
 
 export const getConfig: () => Promise<AppConfig> = async () => {
     // Load any ENV vars from local .env file
@@ -24,13 +25,13 @@ export const getConfig: () => Promise<AppConfig> = async () => {
     }
 
     if (!observabilityConfig.connectionString) {
-        logger.warn("APPLICATIONINSIGHTS_CONNECTION_STRING has not been set. Monitoring will not be provided.");
+        logger.info("APPLICATIONINSIGHTS_CONNECTION_STRING has not been set. Monitoring will not be provided.");
     }
 
     return {
         observability: {
             connectionString: observabilityConfig.connectionString,
-            roleName: observabilityConfig.roleName,
+            roleName: observabilityConfig.roleName ?? os.hostname(),
         },
         database: {
             connectionString: databaseConfig.connectionString,
@@ -46,7 +47,7 @@ const populateEnvironmentFromKeyVault = async () => {
     const keyVaultEndpoint = process.env.AZURE_KEY_VAULT_ENDPOINT || "";
 
     if (!keyVaultEndpoint) {
-        logger.warn("AZURE_KEY_VAULT_ENDPOINT has not been set. Configuration will be loaded from current environment.");
+        logger.info("AZURE_KEY_VAULT_ENDPOINT has not been set. Configuration will be loaded from current environment.");
         return;
     }
 

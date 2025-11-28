@@ -2,6 +2,8 @@ import { Request, Response, NextFunction } from "express";
 import jwt, { JwtPayload } from "jsonwebtoken";
 import jwksClient from "jwks-rsa";
 
+import { logger } from "./config/observability";
+
 // Define a custom JwtPayloadWithUsername extending JwtPayload
 interface JwtPayloadWithUsername extends JwtPayload {
   preferredUserId?: string;
@@ -36,7 +38,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
   const token = authHeader.split(" ")[1]; // Extract the token from the Bearer scheme
 
   if (!token) {
-    console.error("Token not present in authorization header");
+    logger.error("Token not present in authorization header");
     return res.status(401).json({ msg: "Token format is invalid" });
   }
 
@@ -47,7 +49,7 @@ export default (req: Request, res: Response, next: NextFunction) => {
     { algorithms: ["RS256"], complete: true },
     (err, decoded: JwtPayloadWithUsername | undefined) => {
       if (err || !decoded) {
-        console.error("Token verification failed:", err);
+        logger.error("Token verification failed:", err);
         return res.status(401).json({ msg: "Token is not valid" });
       }
 

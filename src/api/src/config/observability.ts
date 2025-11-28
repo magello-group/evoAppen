@@ -12,25 +12,40 @@ export enum LogLevel {
 }
 
 export const logger = winston.createLogger({
-    level: "info",
+    level: process.env.LOG_LEVEL || "info",
     format: winston.format.json(),
     transports: [
-        new winston.transports.File({ filename: "error.log", level: "error" }),
+        new winston.transports.File({
+            filename: "error.log",
+            level: "error",
+        }),
+        new winston.transports.Console({
+            handleExceptions: true,
+            format: winston.format.combine(
+                winston.format.colorize(),
+                winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
+                winston.format.printf(({ timestamp, level, message, stack }) => {
+                    return stack
+                        ? `${timestamp} [${level}]: ${stack}`
+                        : `${timestamp} [${level}]: ${message}`;
+                })
+            )
+        }),
     ],
     exceptionHandlers: [
-        new winston.transports.File({ filename: "exceptions.log" }),
+        new winston.transports.File({ filename: "exceptions.log" })
     ]
 });
 
 export const observability = (config: ObservabilityConfig) => {
-    if(!config.connectionString) {
+    if (!config.connectionString) {
         // We skip App Insights setup if no connection string is provided
         return;
     }
 
     // Append App Insights to the winston logger
     logger.defaultMeta = {
-        app: config.roleName
+        app: config.roleName,
     };
 
     try {

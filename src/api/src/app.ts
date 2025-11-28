@@ -10,14 +10,14 @@ import templates from "./routes/templates";
 import rounds from "./routes/rounds";
 import round from "./routes/round";
 import { configureMongoose } from "./models/mongoose";
-import { observability } from "./config/observability";
+import { logger, observability } from "./config/observability";
 import auth from "./auth";
 
 // Use API_ALLOW_ORIGINS env var with comma separated urls like
 // `http://localhost:300, http://otherurl:100`
 // Requests coming to the api server from other urls will be rejected as per
 // CORS.
-const allowOrigins = "http://localhost:5173";
+const allowOrigins = process.env.API_ALLOW_ORIGINS;
 
 // Use NODE_ENV to change webConfiguration based on this value.
 // For example, setting NODE_ENV=development disables CORS checking,
@@ -26,15 +26,15 @@ const environment = process.env.NODE_ENV;
 
 const originList = (): string[] | string => {
   if (environment && environment === "development") {
-    console.log(`Allowing requests from any origins. NODE_ENV=${environment}`);
+    logger.warn(`Allowing requests from any origins. NODE_ENV=${environment}`);
     return "*";
   }
 
-  const origins = ["https://portal.azure.com", "https://ms.portal.azure.com"];
+  const origins: string[] = [];
 
   if (allowOrigins) {
     allowOrigins.split(",").forEach((origin) => {
-      origins.push(origin);
+      origins.push(origin.trim());
     });
   }
   return origins;
@@ -47,6 +47,7 @@ export const createApp = async (): Promise<Express> => {
   // Configuration
   observability(config.observability);
   await configureMongoose(config.database);
+  
   // Middleware
   app.use(express.json());
 
@@ -66,8 +67,16 @@ export const createApp = async (): Promise<Express> => {
   app.use("/template", auth, template);
 
   // Swagger UI
-  const swaggerDocument = yaml.load("./openapi.yaml");
-  app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+  try {
+    const swaggerDocument = yaml.load("./openapi.yaml");
+    app.use("/", swaggerUI.serve, swaggerUI.setup(swaggerDocument));
+  }
+  catch {
+    logger.info("Swagger UI not started, openapi.yaml file not found.");
+    app.use("/", (_, res) => {
+      res.status(404).send();
+    });
+  }
 
   return app;
 };

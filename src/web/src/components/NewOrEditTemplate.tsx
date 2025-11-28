@@ -210,7 +210,7 @@ export const NewOrEditTemplate = () => {
         account: accounts[0],
       });
 
-      const headers = new Headers();f
+      const headers = new Headers();
       const bearer = "Bearer " + temp.accessToken;
       headers.append("Authorization", bearer);
       headers.append("Content-Type", "application/json");

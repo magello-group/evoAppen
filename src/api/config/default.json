@@ -1,10 +1,10 @@
 {
     "database": {
-        "connectionString": "mongodb://mongodb:27017",
+        "connectionString": null,
         "databaseName": "evoDB"
     },
     "observability": {
-        "connectionString": "",
-        "roleName": "API"
+        "connectionString": null,
+        "roleName": null
     }
 }
